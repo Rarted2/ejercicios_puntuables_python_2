@@ -6,7 +6,8 @@ inventario = {}
 
 def mostrar_menu():
     """Función para mostrar las opciones del menú en pantalla."""
-    print("\nPROGRAMA INVENTARIO")
+    print("="*50)
+    print("PROGRAMA INVENTARIO")
     print("Menú de Opciones")
     print("="*50)
     print("1) Añadir un nuevo producto")
@@ -15,6 +16,7 @@ def mostrar_menu():
     print("4) Consultar el valor actual del inventario")
     print("5) Presentar un listado de nombre de producto y su cantidad en stock")
     print("6) Salir")
+    print("="*50)
 
 def main():
     while True:
@@ -24,6 +26,7 @@ def main():
 
         # OPCIÓN 1: AÑADIR PRODUCTO [cite: 13, 19]
         if opcion == "1":
+            print("="*50)
             print("Añadir nuevo producto")
             print("="*50)
             nombre = input("Nombre: ").capitalize() # Guardamos con la primera mayúscula por estética
@@ -42,6 +45,7 @@ def main():
 
         # OPCIÓN 2: MODIFICAR PRECIO [cite: 14, 28]
         elif opcion == "2":
+            print("="*50)
             print("Modificar producto concreto")
             print("="*50)
             nombre = input("Nombre: ").capitalize()
@@ -61,6 +65,7 @@ def main():
 
         # OPCIÓN 3: ELIMINAR PRODUCTO [cite: 15, 35]
         elif opcion == "3":
+            print("="*50)
             print("Eliminar producto concreto")
             print("="*50)
             nombre = input("Nombre: ").capitalize()
@@ -73,6 +78,7 @@ def main():
 
         # OPCIÓN 4: CONSULTAR VALOR TOTAL [cite: 16, 41]
         elif opcion == "4":
+            print("="*50)
             print("Consultar valor inventario")
             print("="*50)
             valor_total = 0.0
@@ -86,6 +92,7 @@ def main():
 
         # OPCIÓN 5: LISTAR PRODUCTOS [cite: 17, 45]
         elif opcion == "5":
+            print("="*50)
             print("Listar productos inventario")
             print(""*50)
             # Usamos f-strings con espaciado para alinear columnas (similar a la imagen del PDF)
@@ -96,6 +103,7 @@ def main():
 
         # OPCIÓN 6: SALIR
         elif opcion == "6":
+            print("="*50)
             print("Saliendo del programa...")
             break
             
