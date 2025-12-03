@@ -10,7 +10,7 @@ def main():
         print("="*50)
         palabra = input("Introduce una palabra: ").lower()
         # Final del programa
-        if palabra == "fin":
+        if palabra == "FIN":
             print("Fin del programa.")
             break
 
