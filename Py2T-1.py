@@ -21,10 +21,10 @@ def mostrar_menu():
 def main():
     while True:
         mostrar_menu()
-        # Solicitamos la opción al usuario [cite: 18]
+        # Solicitamos la opción al usuario
         opcion = input("Opción: ")
 
-        # OPCIÓN 1: AÑADIR PRODUCTO [cite: 13, 19]
+        # OPCIÓN 1: AÑADIR PRODUCTO
         if opcion == "1":
             print("="*50)
             print("Añadir nuevo producto")
@@ -43,7 +43,7 @@ def main():
             except ValueError:
                 print("¡Error! Debes introducir un número válido para la cantidad y el precio.")
 
-        # OPCIÓN 2: MODIFICAR PRECIO [cite: 14, 28]
+        # OPCIÓN 2: MODIFICAR PRECIO
         elif opcion == "2":
             print("="*50)
             print("Modificar producto concreto")
@@ -63,7 +63,7 @@ def main():
             else:
                 print(f"El producto '{nombre}' no existe en el inventario.")
 
-        # OPCIÓN 3: ELIMINAR PRODUCTO [cite: 15, 35]
+        # OPCIÓN 3: ELIMINAR PRODUCTO
         elif opcion == "3":
             print("="*50)
             print("Eliminar producto concreto")
@@ -72,11 +72,11 @@ def main():
             
             if nombre in inventario:
                 del inventario[nombre]
-                print(f"Eliminados los datos del producto {nombre} del inventario.") # [cite: 40]
+                print(f"Eliminados los datos del producto {nombre} del inventario.")
             else:
                 print(f"No se puede eliminar. El producto '{nombre}' no existe.")
 
-        # OPCIÓN 4: CONSULTAR VALOR TOTAL [cite: 16, 41]
+        # OPCIÓN 4: CONSULTAR VALOR TOTAL
         elif opcion == "4":
             print("="*50)
             print("Consultar valor inventario")
@@ -88,15 +88,15 @@ def main():
                 valor_total += producto['cantidad'] * producto['precio']
             
             # len(inventario) nos da el número de claves (productos distintos)
-            print(f"Los {len(inventario)} productos del inventario tienen un valor de {valor_total:.2f}€") # [cite: 44]
+            print(f"Los {len(inventario)} productos del inventario tienen un valor de {valor_total:.2f}€")
 
-        # OPCIÓN 5: LISTAR PRODUCTOS [cite: 17, 45]
+        # OPCIÓN 5: LISTAR PRODUCTOS
         elif opcion == "5":
             print("="*50)
             print("Listar productos inventario")
             print(""*50)
             # Usamos f-strings con espaciado para alinear columnas (similar a la imagen del PDF)
-            print(f"{'Nombre':<15} {'Cantidad':<10} {'Precio':<10}") # [cite: 49, 50, 51]
+            print(f"{'Nombre':<15} {'Cantidad':<10} {'Precio':<10}")
             
             for nombre, datos in inventario.items():
                 print(f"{nombre:<15} {datos['cantidad']:<10} {datos['precio']:.2f}€")
