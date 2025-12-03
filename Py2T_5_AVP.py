@@ -105,8 +105,9 @@ def guardar_datos(datos):
 # ==========================================
 
 def alta_abonado():
+    """Añade un nuevo abonado al diccionario y lo guarda en el fichero JSON."""
     datos = cargar_datos()
-    nombre = input("\nNombre del nuevo abonado: ").strip()
+    nombre = input("\nNombre del nuevo abonado: ").strip().title()
     if nombre in datos:
         print("¡Error! Ese abonado ya existe.")
     else:
@@ -119,8 +120,9 @@ def alta_abonado():
             print("Error: El valor de la factura debe ser numérico.")
 
 def modificar_factura():
+    """Modifica el valor de la factura de un abonado existente."""
     datos = cargar_datos()
-    nombre = input("\nNombre del abonado a modificar: ").strip()
+    nombre = input("\nNombre del abonado a modificar: ").strip().title()
     if nombre not in datos:
         print("Error: Abonado no encontrado.")
     else:
@@ -133,14 +135,16 @@ def modificar_factura():
             print("Error: Valor incorrecto.")
 
 def consultar_abonado():
+    """Consulta el valor de la factura de un abonado existente."""
     datos = cargar_datos()
-    nombre = input("\nNombre del abonado a consultar: ").strip()
+    nombre = input("\nNombre del abonado a consultar: ").strip().title()
     if nombre in datos:
         print(f"La factura de '{nombre}' asciende a: {datos[nombre]}€")
     else:
         print("Abonado no encontrado en la base de datos.")
 
 def consultar_total():
+    """Consulta el valor total de la facturación de la compañía."""
     datos = cargar_datos()
     if not datos:
         print("\nNo hay datos de facturación registrados.")
@@ -150,6 +154,7 @@ def consultar_total():
         print(f"\nFacturación Total de la Compañía: {total:.2f}€ ({num_clientes} abonados)")
 
 def eliminar_fichero_datos():
+    """Elimina el fichero de datos si existe."""
     if os.path.exists(FICH_DATOS):
         confirmacion = input("\n¿Seguro que quieres BORRAR TODOS los datos de abonados? (s/n): ").lower()
         if confirmacion == 's':
