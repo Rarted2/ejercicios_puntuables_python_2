@@ -1,5 +1,3 @@
-import sys
-
 # Diccionario global para almacenar el inventario.
 # La estructura será: {'NombreProducto': {'cantidad': int, 'precio': float}}
 inventario = {}
