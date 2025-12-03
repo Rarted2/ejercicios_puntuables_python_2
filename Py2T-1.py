@@ -5,7 +5,6 @@ import sys
 inventario = {}
 
 def mostrar_menu():
-    """Función para mostrar las opciones del menú en pantalla."""
     print("="*50)
     print("PROGRAMA INVENTARIO")
     print("Menú de Opciones")
@@ -38,7 +37,10 @@ def main():
                 
                 # Añadimos al diccionario usando el nombre como clave
                 inventario[nombre] = {"cantidad": cantidad, "precio": precio}
+                
+                print("="*50)
                 print("Añadido al inventario")
+                print("="*50)
                 
             except ValueError:
                 print("¡Error! Debes introducir un número válido para la cantidad y el precio.")
