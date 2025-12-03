@@ -1,77 +1,109 @@
 import random
 
 def lanzar_dado():
-    # Genera un número entero aleatorio incluyendo el 1 y el 6
+    """
+    Simula el lanzamiento de un dado de 6 caras.
+    
+    Retorna:
+        int: Un número entero aleatorio entre 1 y 6 (ambos inclusive).
+    """
+    # random.randint(a, b) devuelve un entero N tal que a <= N <= b.
     return random.randint(1, 6)
 
 def dibujar_dado(numero):
+    """
+    Dibuja en la consola una representación ASCII de la cara del dado.
+    
+    Argumentos:
+        numero (int): El número obtenido en el lanzamiento (1-6).
+    """
+    # Utilizamos una estructura if-elif-else para determinar qué dibujo mostrar
+    # basándonos en el número recibido.
     if numero == 1:
         print()
         print("   ")
-        print(" * ")
+        print(" * ") # Punto central
         print("   ")
         print()
     elif numero == 2:
         print()
-        print("* ")
+        print("* ") # Superior izquierda
         print("   ")
-        print("  *")
+        print("  *") # Inferior derecha
         print()
     elif numero == 3:
         print()
-        print("* ")
-        print(" * ")
-        print("  *")
+        print("* ") # Superior izquierda
+        print(" * ") # Centro
+        print("  *") # Inferior derecha
         print()
     elif numero == 4:
         print()
-        print("* *")
+        print("* *") # Superiores
         print("   ")
-        print("* *")
+        print("* *") # Inferiores
         print()
     elif numero == 5:
         print()
-        print("* *")
-        print(" * ")
-        print("* *")
+        print("* *") # Superiores
+        print(" * ") # Centro
+        print("* *") # Inferiores
         print()
     elif numero == 6:
         print()
-        print("* *")
-        print("* *")
-        print("* *")
+        print("* *") # Superiores
+        print("* *") # Medios
+        print("* *") # Inferiores
         print()
     else:
+        # Caso de error por si se pasa un número fuera del rango 1-6
         print("Número incorrecto (no es un dado estándar)")
 
 
 def main():
-    # Lista para almacenar los valores de los dados
+    """
+    Función principal que gestiona la interacción con el usuario y la lógica del juego.
+    """
+    # Lista para almacenar los valores únicos de los dados que van saliendo.
     lista_dados = []
+    
     while True:
-        numero = int(input("¿Cuántos dados lanzamos?: "))
-        # Salimos del bucle
+        # Solicitamos al usuario cuántos dados quiere lanzar en esta tirada.
+        try:
+            numero = int(input("¿Cuántos dados lanzamos?: "))
+        except ValueError:
+            print("Por favor, introduce un número entero válido.")
+            continue
+
+        # Condición de salida: si el usuario introduce 0.
         if numero == 0:
-            # Ordenamos la lista y la convertimos a string, separado por comas
+            # Ordenamos la lista de números obtenidos de menor a mayor.
             lista_dados.sort()
+            
+            # Convertimos la lista de enteros a una cadena de texto separada por comas
+            # para mostrarla de forma legible.
             texto_lista = ", ".join(str(dado) for dado in lista_dados)
-            # Mostramos la lista
+            
+            # Mostramos el resumen final de todos los valores únicos obtenidos.
             print("Los valores lanzados son:", texto_lista)
             print("Fin del programa.")
-            break
+            break # Terminamos el bucle y el programa.
 
-        # Lanzamos los dados
+        # Bucle para realizar el número de lanzamientos solicitados.
         for i in range(numero):
             print(f"el número {i+1} ha generado aleatoriamente un: ")
+            
+            # Generamos el valor aleatorio
             numero_dado = lanzar_dado()
+            
+            # Dibujamos el dado por pantalla
             dibujar_dado(numero_dado)
             
-            # Solo añadimos si NO está ya dentro
+            # Lógica de almacenamiento: Solo añadimos si NO está ya dentro de la lista.
+            # Esto asegura que la lista final contenga solo valores únicos.
             if numero_dado not in lista_dados:
                 lista_dados.append(numero_dado)
 
+# Punto de entrada del script.
 if __name__ == "__main__":
     main()
-
-
-    

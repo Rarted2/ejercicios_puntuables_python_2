@@ -2,6 +2,8 @@ import os
 import json
 
 # --- CONSTANTES: Nombres de los ficheros ---
+# Definimos las rutas de los archivos de forma centralizada para facilitar cambios futuros.
+# os.path.join asegura que la ruta sea correcta independientemente del sistema operativo (Windows/Linux/Mac).
 FICH_TITULOS = os.path.join("files", "mensajes.txt")
 FICH_OPCIONES = os.path.join("files", "mensajes.json")
 FICH_DATOS = os.path.join("files", "abonados.json")
@@ -15,7 +17,10 @@ def configurar_sistema():
     Verifica si existen los ficheros de configuración del menú.
     Si no existen, solicita al usuario que los cree (rellenado por teclado).
     """
+    # Crea el directorio 'files' si no existe. exist_ok=True evita error si ya existe.
     os.makedirs("files", exist_ok=True)
+    
+    # Comprobamos si faltan los archivos de configuración.
     if not os.path.exists(FICH_TITULOS) or not os.path.exists(FICH_OPCIONES):
         print("AVISO: Ficheros de configuración no encontrados. Iniciando configuración inicial...\n")
         crear_ficheros_configuracion()
@@ -32,7 +37,7 @@ def crear_ficheros_configuracion():
     titulo_principal = input("Introduce el Título Principal (ej. PROGRAMA GESTIÓN COMPAÑÍA): ")
     subtitulo = input("Introduce el Subtítulo (ej. Menú de Opciones): ")
     
-    # Guardamos los títulos en texto plano
+    # Guardamos los títulos en texto plano en el archivo mensajes.txt
     with open(FICH_TITULOS, "w", encoding="utf-8") as f:
         f.write(titulo_principal + "\n")
         f.write(subtitulo + "\n")
@@ -50,13 +55,14 @@ def crear_ficheros_configuracion():
         "Salir"
     ]
     
+    # Iteramos para pedir el texto de cada opción, ofreciendo un valor por defecto.
     for i, texto_defecto in enumerate(textos_default, 1):
         # Le mostramos una sugerencia al usuario, pero le dejamos escribir lo que quiera
         entrada = input(f"Introduce texto para opción {i} [{texto_defecto}]: ")
         # Si pulsa enter sin escribir, usamos el texto por defecto
         opciones[str(i)] = entrada if entrada.strip() else texto_defecto
     
-    # Guardamos las opciones en JSON
+    # Guardamos las opciones en formato JSON para preservar la estructura diccionario.
     with open(FICH_OPCIONES, "w", encoding="utf-8") as f:
         json.dump(opciones, f, indent=4)
     print(f"-> {FICH_OPCIONES} generado correctamente.\n")
@@ -77,6 +83,7 @@ def mostrar_menu():
     if os.path.exists(FICH_OPCIONES):
         with open(FICH_OPCIONES, "r", encoding="utf-8") as f:
             opciones = json.load(f)
+            # Iteramos sobre las opciones cargadas para imprimirlas ordenadamente.
             for k, v in opciones.items():
                 print(f"{k}) {v}")
 
@@ -86,17 +93,28 @@ def mostrar_menu():
 # ==========================================
 
 def cargar_datos():
-    """Recupera el diccionario de abonados del fichero JSON. Si no existe, devuelve vacío."""
+    """
+    Recupera el diccionario de abonados del fichero JSON.
+    
+    Retorna:
+        dict: Diccionario con los datos cargados, o vacío si no existe el fichero o hay error.
+    """
     if not os.path.exists(FICH_DATOS):
         return {}
     try:
         with open(FICH_DATOS, "r", encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError:
+        # Si el archivo está corrupto o vacío, devolvemos un diccionario vacío para evitar crash.
         return {}
 
 def guardar_datos(datos):
-    """Guarda el diccionario de abonados en el fichero JSON."""
+    """
+    Guarda el diccionario de abonados en el fichero JSON.
+    
+    Argumentos:
+        datos (dict): El diccionario de abonados a persistir.
+    """
     with open(FICH_DATOS, "w", encoding="utf-8") as f:
         json.dump(datos, f, indent=4)
 
@@ -108,12 +126,15 @@ def alta_abonado():
     """Añade un nuevo abonado al diccionario y lo guarda en el fichero JSON."""
     datos = cargar_datos()
     nombre = input("\nNombre del nuevo abonado: ").strip().title()
+    
+    # Verificamos duplicados
     if nombre in datos:
         print("¡Error! Ese abonado ya existe.")
     else:
         try:
             factura = float(input("Valor de la factura (€): "))
             datos[nombre] = factura
+            # Guardamos inmediatamente para persistir el cambio
             guardar_datos(datos)
             print(f"Abonado '{nombre}' dado de alta con {factura}€.")
         except ValueError:
@@ -123,6 +144,7 @@ def modificar_factura():
     """Modifica el valor de la factura de un abonado existente."""
     datos = cargar_datos()
     nombre = input("\nNombre del abonado a modificar: ").strip().title()
+    
     if nombre not in datos:
         print("Error: Abonado no encontrado.")
     else:
@@ -138,6 +160,7 @@ def consultar_abonado():
     """Consulta el valor de la factura de un abonado existente."""
     datos = cargar_datos()
     nombre = input("\nNombre del abonado a consultar: ").strip().title()
+    
     if nombre in datos:
         print(f"La factura de '{nombre}' asciende a: {datos[nombre]}€")
     else:
@@ -149,12 +172,13 @@ def consultar_total():
     if not datos:
         print("\nNo hay datos de facturación registrados.")
     else:
+        # Sumamos todos los valores (facturas) del diccionario
         total = sum(datos.values())
         num_clientes = len(datos)
         print(f"\nFacturación Total de la Compañía: {total:.2f}€ ({num_clientes} abonados)")
 
 def eliminar_fichero_datos():
-    """Elimina el fichero de datos si existe."""
+    """Elimina el fichero de datos si existe, reseteando el sistema."""
     if os.path.exists(FICH_DATOS):
         confirmacion = input("\n¿Seguro que quieres BORRAR TODOS los datos de abonados? (s/n): ").lower()
         if confirmacion == 's':
@@ -170,7 +194,10 @@ def eliminar_fichero_datos():
 # ==========================================
 
 def main():
-    # Paso 0: Asegurar que existen los ficheros de menú
+    """
+    Función principal que orquesta el flujo del programa.
+    """
+    # Paso 0: Asegurar que existen los ficheros de menú antes de empezar
     configurar_sistema()
     
     continuar = True
@@ -178,6 +205,7 @@ def main():
         mostrar_menu()
         opcion = input("\nOpción: ")
         
+        # Dispatcher de opciones
         if opcion == "1":
             alta_abonado()
         elif opcion == "2":
