@@ -3,8 +3,8 @@ import json
 import os
 
 # --- CONSTANTES ---
-FICH_CSV = "ventasprod.csv"
-FICH_JSON = "ventasestad.json"
+FICH_CSV = os.path.join("files", "ventasprod.csv")
+FICH_JSON = os.path.join("files", "ventasestad.json")
 
 # ==========================================
 # 0. FUNCIÓN AUXILIAR (PARA CREAR DATOS DE PRUEBA)
@@ -14,6 +14,7 @@ def generar_csv_prueba():
     Crea el fichero ventasprod.csv con datos ficticios si no existe,
     para que el alumno pueda probar el ejercicio inmediatamente.
     """
+    os.makedirs("files", exist_ok=True)
     if not os.path.exists(FICH_CSV):
         datos = [
             ["Producto", "Cantidad", "PrecioUnitario"],

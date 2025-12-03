@@ -2,9 +2,9 @@ import os
 import json
 
 # --- CONSTANTES: Nombres de los ficheros ---
-FICH_TITULOS = "mensajes.txt"
-FICH_OPCIONES = "mensajes.json"
-FICH_DATOS = "abonados.json"
+FICH_TITULOS = os.path.join("files", "mensajes.txt")
+FICH_OPCIONES = os.path.join("files", "mensajes.json")
+FICH_DATOS = os.path.join("files", "abonados.json")
 
 # ==========================================
 # BLOQUE 1: GESTIÓN DE FICHEROS DE CONFIGURACIÓN
@@ -15,6 +15,7 @@ def configurar_sistema():
     Verifica si existen los ficheros de configuración del menú.
     Si no existen, solicita al usuario que los cree (rellenado por teclado).
     """
+    os.makedirs("files", exist_ok=True)
     if not os.path.exists(FICH_TITULOS) or not os.path.exists(FICH_OPCIONES):
         print("AVISO: Ficheros de configuración no encontrados. Iniciando configuración inicial...\n")
         crear_ficheros_configuracion()
