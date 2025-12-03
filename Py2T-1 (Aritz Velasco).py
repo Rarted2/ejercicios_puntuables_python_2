@@ -25,7 +25,6 @@ def main():
 
         # OPCIÓN 1: AÑADIR PRODUCTO
         if opcion == "1":
-            print("="*50)
             print("Añadir nuevo producto")
             print("="*50)
             nombre = input("Nombre: ").capitalize() # Guardamos con la primera mayúscula por estética
@@ -38,16 +37,13 @@ def main():
                 # Añadimos al diccionario usando el nombre como clave
                 inventario[nombre] = {"cantidad": cantidad, "precio": precio}
                 
-                print("="*50)
                 print("Añadido al inventario")
-                print("="*50)
                 
             except ValueError:
                 print("¡Error! Debes introducir un número válido para la cantidad y el precio.")
 
         # OPCIÓN 2: MODIFICAR PRECIO
         elif opcion == "2":
-            print("="*50)
             print("Modificar producto concreto")
             print("="*50)
             nombre = input("Nombre: ").capitalize()
@@ -67,7 +63,6 @@ def main():
 
         # OPCIÓN 3: ELIMINAR PRODUCTO
         elif opcion == "3":
-            print("="*50)
             print("Eliminar producto concreto")
             print("="*50)
             nombre = input("Nombre: ").capitalize()
@@ -80,7 +75,6 @@ def main():
 
         # OPCIÓN 4: CONSULTAR VALOR TOTAL
         elif opcion == "4":
-            print("="*50)
             print("Consultar valor inventario")
             print("="*50)
             valor_total = 0.0
@@ -97,7 +91,7 @@ def main():
             print("="*50)
             print("Listar productos inventario")
             print(""*50)
-            # Usamos f-strings con espaciado para alinear columnas (similar a la imagen del PDF)
+            # Usamos f-strings con espaciado para alinear columnas
             print(f"{'Nombre':<15} {'Cantidad':<10} {'Precio':<10}")
             
             for nombre, datos in inventario.items():
@@ -105,7 +99,6 @@ def main():
 
         # OPCIÓN 6: SALIR
         elif opcion == "6":
-            print("="*50)
             print("Saliendo del programa...")
             break
             
