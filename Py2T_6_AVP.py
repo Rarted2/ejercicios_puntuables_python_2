@@ -29,9 +29,10 @@ def generar_csv_prueba():
         ]
         try:
             # newline="" es importante en Windows para evitar líneas en blanco extra en CSV
-            with open(FICH_CSV, "w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerows(datos)
+            f = open(FICH_CSV, "w", newline="", encoding="utf-8")
+            writer = csv.writer(f)
+            writer.writerows(datos)
+            f.close()
             print(f"AVISO: Se ha creado un fichero '{FICH_CSV}' de prueba con datos ficticios.\n")
         except OSError as e:
             print(f"Error creando fichero de prueba: {e}")
@@ -52,24 +53,25 @@ def carga_datos_csv(nombre_fichero):
     """
     lista_productos = []
     try:
-        with open(nombre_fichero, mode="r", newline="", encoding="utf-8") as f:
-            # Usamos DictReader para que convierta cada fila en un diccionario {'Columna': Valor}
-            # Esto hace que el código sea más legible que usar índices numéricos.
-            reader = csv.DictReader(f)
-            
-            for fila in reader:
-                # Es importante convertir los textos a números (int/float) para poder calcular después.
-                # Usamos try-except interno por si una fila viene con datos corruptos, para no detener todo el proceso.
-                try:
-                    producto = {
-                        "nombre": fila["Producto"],
-                        "cantidad": int(fila["Cantidad"]),
-                        "precio": float(fila["PrecioUnitario"])
-                    }
-                    lista_productos.append(producto)
-                except ValueError:
-                    print(f"Advertencia: Fila ignorada por datos no numéricos: {fila}")
-                    
+        f = open(nombre_fichero, mode="r", newline="", encoding="utf-8")
+        # Usamos DictReader para que convierta cada fila en un diccionario {'Columna': Valor}
+        # Esto hace que el código sea más legible que usar índices numéricos.
+        reader = csv.DictReader(f)
+        
+        for fila in reader:
+            # Es importante convertir los textos a números (int/float) para poder calcular después.
+            # Usamos try-except interno por si una fila viene con datos corruptos, para no detener todo el proceso.
+            try:
+                producto = {
+                    "nombre": fila["Producto"],
+                    "cantidad": int(fila["Cantidad"]),
+                    "precio": float(fila["PrecioUnitario"])
+                }
+                lista_productos.append(producto)
+            except ValueError:
+                print(f"Advertencia: Fila ignorada por datos no numéricos: {fila}")
+                
+        f.close()
         return lista_productos
 
     except FileNotFoundError:
@@ -142,10 +144,11 @@ def guardar_estadisticas_json(datos, nombre_fichero):
         nombre_fichero (str): Ruta del archivo de destino.
     """
     try:
-        with open(nombre_fichero, "w", encoding="utf-8") as f:
-            # indent=4 para que quede bonito y legible (pretty print).
-            # ensure_ascii=False permite que se guarden caracteres especiales (tildes, ñ, €) correctamente.
-            json.dump(datos, f, indent=4, ensure_ascii=False)
+        f = open(nombre_fichero, "w", encoding="utf-8")
+        # indent=4 para que quede bonito y legible (pretty print).
+        # ensure_ascii=False permite que se guarden caracteres especiales (tildes, ñ, €) correctamente.
+        json.dump(datos, f, indent=4, ensure_ascii=False)
+        f.close()
         print(f"Almacenando en fichero {nombre_fichero}...")
     except OSError as e:
         print(f"Error guardando el fichero JSON: {e}")

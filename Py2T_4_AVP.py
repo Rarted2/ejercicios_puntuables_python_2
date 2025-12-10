@@ -29,8 +29,9 @@ def verificar_entorno():
         mensaje_estado = f"Iniciado el programa. El fichero {NOMBRE_FICHERO} se abrió correctamente."
     else:
         # Si no existe, lo creamos con el valor inicial '0'
-        with open(RUTA_COMPLETA, 'w', encoding='utf-8') as f:
-            f.write("0")
+        f = open(RUTA_COMPLETA, 'w', encoding='utf-8')
+        f.write("0")
+        f.close()
         mensaje_estado = f"Iniciado el programa. El fichero {NOMBRE_FICHERO} se abrió correctamente. (Hubo que crearlo.)"
     
     return mensaje_estado
@@ -41,11 +42,13 @@ def leer_valor_fichero():
     Gestiona errores si el fichero está vacío o corrupto.
     """
     try:
-        with open(RUTA_COMPLETA, 'r', encoding='utf-8') as f:
-            contenido = f.read().strip() # Quitamos posibles saltos de línea
-            if contenido == "":
-                return 0 # Si está vacío, asumimos 0
-            return int(contenido)
+        f = open(RUTA_COMPLETA, 'r', encoding='utf-8')
+        contenido = f.readline().strip()
+        f.close()
+        
+        if contenido == "":
+            return 0 # Si está vacío, asumimos 0
+        return int(contenido)
     except ValueError:
         print("Error: El contenido del fichero no es un número válido. Se reinicia a 0.")
         return 0
@@ -54,8 +57,9 @@ def escribir_valor_fichero(nuevo_valor):
     """
     Sobrescribe el fichero con el nuevo valor calculado.
     """
-    with open(RUTA_COMPLETA, 'w', encoding='utf-8') as f:
-        f.write(str(nuevo_valor))
+    f = open(RUTA_COMPLETA, 'w', encoding='utf-8')
+    f.write(str(nuevo_valor))
+    f.close()
 
 # ==========================================
 # 3. FUNCIONES LÓGICAS (OPERACIONES)

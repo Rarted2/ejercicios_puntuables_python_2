@@ -38,9 +38,10 @@ def crear_ficheros_configuracion():
     subtitulo = input("Introduce el Subtítulo (ej. Menú de Opciones): ")
     
     # Guardamos los títulos en texto plano en el archivo mensajes.txt
-    with open(FICH_TITULOS, "w", encoding="utf-8") as f:
-        f.write(titulo_principal + "\n")
-        f.write(subtitulo + "\n")
+    f = open(FICH_TITULOS, "w", encoding="utf-8")
+    f.write(titulo_principal + "\n")
+    f.write(subtitulo + "\n")
+    f.close()
     print(f"-> {FICH_TITULOS} generado correctamente.\n")
 
     print("--- Configuración de Opciones (mensajes.json) ---")
@@ -63,8 +64,9 @@ def crear_ficheros_configuracion():
         opciones[str(i)] = entrada if entrada.strip() else texto_defecto
     
     # Guardamos las opciones en formato JSON para preservar la estructura diccionario.
-    with open(FICH_OPCIONES, "w", encoding="utf-8") as f:
-        json.dump(opciones, f, indent=4)
+    f = open(FICH_OPCIONES, "w", encoding="utf-8")
+    json.dump(opciones, f, indent=4)
+    f.close()
     print(f"-> {FICH_OPCIONES} generado correctamente.\n")
 
 
@@ -75,17 +77,22 @@ def mostrar_menu():
     print()
     # 1. Mostrar títulos desde .txt
     if os.path.exists(FICH_TITULOS):
-        with open(FICH_TITULOS, "r", encoding="utf-8") as f:
-            print(f.read().strip())
+        f = open(FICH_TITULOS, "r", encoding="utf-8")
+        titulo = f.readline().strip()
+        subtitulo = f.readline().strip()
+        print(titulo)
+        print(subtitulo)
+        f.close()
         print("=" * 20)
     
     # 2. Mostrar opciones desde .json
     if os.path.exists(FICH_OPCIONES):
-        with open(FICH_OPCIONES, "r", encoding="utf-8") as f:
-            opciones = json.load(f)
-            # Iteramos sobre las opciones cargadas para imprimirlas ordenadamente.
-            for k, v in opciones.items():
-                print(f"{k}) {v}")
+        f = open(FICH_OPCIONES, "r", encoding="utf-8")
+        opciones = json.load(f)
+        f.close()
+        # Iteramos sobre las opciones cargadas para imprimirlas ordenadamente.
+        for k, v in opciones.items():
+            print(f"{k}) {v}")
 
 
 # ==========================================
@@ -102,8 +109,10 @@ def cargar_datos():
     if not os.path.exists(FICH_DATOS):
         return {}
     try:
-        with open(FICH_DATOS, "r", encoding="utf-8") as f:
-            return json.load(f)
+        f = open(FICH_DATOS, "r", encoding="utf-8")
+        datos = json.load(f)
+        f.close()
+        return datos
     except json.JSONDecodeError:
         # Si el archivo está corrupto o vacío, devolvemos un diccionario vacío para evitar crash.
         return {}
@@ -115,8 +124,9 @@ def guardar_datos(datos):
     Argumentos:
         datos (dict): El diccionario de abonados a persistir.
     """
-    with open(FICH_DATOS, "w", encoding="utf-8") as f:
-        json.dump(datos, f, indent=4)
+    f = open(FICH_DATOS, "w", encoding="utf-8")
+    json.dump(datos, f, indent=4)
+    f.close()
 
 # ==========================================
 # BLOQUE 3: LÓGICA DE LAS OPCIONES
