@@ -1,5 +1,5 @@
 # Diccionario global para almacenar el inventario.
-# La estructura será: {'NombreProducto': {'cantidad': int, 'precio': float}}
+# La estructura será: {'NombreProducto': [cantidad (int), precio (float)]}
 # Este diccionario actúa como la base de datos en memoria del programa.
 inventario = {}
 
@@ -41,8 +41,8 @@ def anadir_producto(inventario):
         precio = float(input("Precio unitario: "))
         
         # Añadimos el nuevo producto al diccionario usando el nombre como clave
-        # El valor es otro diccionario con la cantidad y el precio, creando una estructura anidada.
-        inventario[nombre] = {"cantidad": cantidad, "precio": precio}
+        # El valor es una lista con la cantidad y el precio.
+        inventario[nombre] = [cantidad, precio]
         
         print("Añadido al inventario")
         
@@ -68,11 +68,11 @@ def modificar_precio(inventario):
         try:
             nuevo_precio = float(input("Nuevo precio unitario: "))
             # Guardamos el precio antiguo para mostrarlo en el mensaje de confirmación
-            # Accedemos al diccionario interno del producto para obtener el precio actual.
-            precio_antiguo = inventario[nombre]['precio']
+            # Accedemos a la lista interna del producto para obtener el precio actual (índice 1).
+            precio_antiguo = inventario[nombre][1]
             
-            # Actualizamos el precio en el diccionario con el nuevo valor.
-            inventario[nombre]['precio'] = nuevo_precio
+            # Actualizamos el precio en la lista con el nuevo valor.
+            inventario[nombre][1] = nuevo_precio
             print(f"Modificado producto {nombre} en el inventario. Antes {precio_antiguo}, ahora {nuevo_precio}")
         except ValueError:
             print("¡Error! El precio debe ser un valor numérico.")
@@ -112,10 +112,10 @@ def consultar_valor_total(inventario):
     valor_total = 0.0
     
     # Recorremos todos los productos (valores del diccionario principal).
-    # Cada 'producto' es un diccionario con 'cantidad' y 'precio'.
+    # Cada 'producto' es una lista con [cantidad, precio].
     for producto in inventario.values():
         # Sumamos: cantidad * precio de cada producto al acumulador total.
-        valor_total += producto['cantidad'] * producto['precio']
+        valor_total += producto[0] * producto[1]
     
     # Mostramos el total formateado con 2 decimales para representar centavos.
     # len(inventario) nos da la cantidad de claves (productos distintos) en el diccionario.
@@ -138,7 +138,7 @@ def listar_productos(inventario):
     # Recorremos items() para obtener clave (nombre) y valor (datos) al mismo tiempo.
     for nombre, datos in inventario.items():
         # Imprimimos cada fila respetando el mismo ancho que la cabecera.
-        print(f"{nombre:<15} {datos['cantidad']:<10} {datos['precio']:.2f}€")
+        print(f"{nombre:<15} {datos[0]:<10} {datos[1]:.2f}€")
 
 def main():
     """
