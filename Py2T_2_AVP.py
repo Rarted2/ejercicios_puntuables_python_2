@@ -26,22 +26,10 @@
 
 # Función que comprueba si una palabra es un palíndromo
 def es_palindromo(palabra):
-    """
-    Verifica si una palabra es un palíndromo (se lee igual de izquierda a derecha que de derecha a izquierda).
-    
-    Argumentos:
-        palabra (str): La palabra a verificar.
-        
-    Retorna:
-        bool: True si es palíndromo, False en caso contrario.
-    """
     # Comparamos la palabra original con su inversa (slicing [::-1])
     return palabra == palabra[::-1]
 
 def main():
-    """
-    Función principal que controla el bucle de ejecución del programa.
-    """
     while True:
         # Obtenemos la entrada del usuario
         palabra = input("Introduzca la palabra o FIN: ").lower()
