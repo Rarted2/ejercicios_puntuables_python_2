@@ -45,9 +45,8 @@ def obtener_entrada():
     Retorna:
         str: La palabra introducida por el usuario, convertida a minúsculas para facilitar la comparación.
     """
-    print("="*50)
     # Convertimos a minúsculas (.lower()) para que 'Ana' sea igual a 'ana'
-    return input("Introduce una palabra: ").lower()
+    return input("Introduzca la palabra o FIN: ").lower()
 
 def mostrar_resultado(palabra):
     """
@@ -57,9 +56,9 @@ def mostrar_resultado(palabra):
         palabra (str): La palabra a evaluar y mostrar.
     """
     if es_palindromo(palabra):
-        print(f"La palabra '{palabra}' es un palíndromo.")
+        print(f"La palabra {palabra} es un palíndromo")
     else:
-        print(f"La palabra '{palabra}' no es un palíndromo.")
+        print(f"La palabra {palabra} no es un palíndromo")
 
 def main():
     """
