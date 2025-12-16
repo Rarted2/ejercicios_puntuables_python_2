@@ -1,3 +1,5 @@
+import time
+
 # Diccionario global para almacenar el inventario.
 # La estructura será: {'NombreProducto': [cantidad (int), precio (float)]}
 # Este diccionario actúa como la base de datos en memoria del programa.
@@ -153,18 +155,23 @@ def main():
         # Estructura condicional para derivar a la función correspondiente según la opción elegida.
         if opcion == "1":
             anadir_producto(inventario)
+            time.sleep(2)
             
         elif opcion == "2":
             modificar_precio(inventario)
+            time.sleep(2)
             
         elif opcion == "3":
             eliminar_producto(inventario)
+            time.sleep(2)
             
         elif opcion == "4":
             consultar_valor_total(inventario)
+            time.sleep(2)
             
         elif opcion == "5":
             listar_productos(inventario)
+            time.sleep(2)
             
         elif opcion == "6":
             print("Saliendo del programa...")
