@@ -152,34 +152,29 @@ def main():
         mostrar_menu()
         opcion = input("Opción: ")
 
-        # Estructura condicional para derivar a la función correspondiente según la opción elegida.
-        if opcion == "1":
-            anadir_producto(inventario)
-            time.sleep(2)
-            
-        elif opcion == "2":
-            modificar_precio(inventario)
-            time.sleep(2)
-            
-        elif opcion == "3":
-            eliminar_producto(inventario)
-            time.sleep(2)
-            
-        elif opcion == "4":
-            consultar_valor_total(inventario)
-            time.sleep(2)
-            
-        elif opcion == "5":
-            listar_productos(inventario)
-            time.sleep(2)
-            
-        elif opcion == "6":
-            print("Saliendo del programa...")
-            break # Rompe el bucle while y termina la ejecución de main(), finalizando el programa.
-            
-        else:
-            # Manejo de opciones no válidas para dar feedback al usuario.
-            print("Opción no válida. Por favor, elija entre 1 y 6.")
+        # Estructura match-case (switch) para derivar a la función correspondiente según la opción elegida.
+        match opcion:
+            case "1":
+                anadir_producto(inventario)
+                time.sleep(2)
+            case "2":
+                modificar_precio(inventario)
+                time.sleep(2)
+            case "3":
+                eliminar_producto(inventario)
+                time.sleep(2)
+            case "4":
+                consultar_valor_total(inventario)
+                time.sleep(2)
+            case "5":
+                listar_productos(inventario)
+                time.sleep(2)
+            case "6":
+                print("Saliendo del programa...")
+                break # Rompe el bucle while y termina la ejecución de main(), finalizando el programa.
+            case _:
+                # Manejo de opciones no válidas para dar feedback al usuario.
+                print("Opción no válida. Por favor, elija entre 1 y 6.")
 
 # Punto de entrada del script.
 # Esto asegura que main() solo se ejecute si el archivo se ejecuta directamente,
