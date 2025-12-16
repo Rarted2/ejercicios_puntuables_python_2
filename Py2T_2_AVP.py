@@ -38,35 +38,13 @@ def es_palindromo(palabra):
     # Comparamos la palabra original con su inversa (slicing [::-1])
     return palabra == palabra[::-1]
 
-def obtener_entrada():
-    """
-    Solicita al usuario que introduzca una palabra.
-    
-    Retorna:
-        str: La palabra introducida por el usuario, convertida a minúsculas para facilitar la comparación.
-    """
-    # Convertimos a minúsculas (.lower()) para que 'Ana' sea igual a 'ana'
-    return input("Introduzca la palabra o FIN: ").lower()
-
-def mostrar_resultado(palabra):
-    """
-    Muestra por pantalla si la palabra es un palíndromo o no.
-    
-    Argumentos:
-        palabra (str): La palabra a evaluar y mostrar.
-    """
-    if es_palindromo(palabra):
-        print(f"La palabra {palabra} es un palíndromo")
-    else:
-        print(f"La palabra {palabra} no es un palíndromo")
-
 def main():
     """
     Función principal que controla el bucle de ejecución del programa.
     """
     while True:
         # Obtenemos la entrada del usuario
-        palabra = obtener_entrada()
+        palabra = input("Introduzca la palabra o FIN: ").lower()
         
         # Condición de salida: si el usuario escribe "fin", terminamos el bucle.
         if palabra == "fin":
@@ -74,7 +52,10 @@ def main():
             break # Rompe el bucle while
 
         # Si no es el comando de salida, procesamos y mostramos el resultado
-        mostrar_resultado(palabra)
+        if es_palindromo(palabra):
+            print(f"La palabra {palabra} es un palíndromo")
+        else:
+            print(f"La palabra {palabra} no es un palíndromo")
 
 # Punto de entrada del script.
 if __name__ == "__main__":
