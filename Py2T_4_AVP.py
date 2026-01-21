@@ -3,10 +3,9 @@ import os
 # ==========================================
 # 1. CONSTANTES Y CONFIGURACIÓN
 # ==========================================
-NOMBRE_CARPETA = "files"
 NOMBRE_FICHERO = "numero.txt"
-# Construimos la ruta completa (files/numero.txt) de forma compatible con cualquier SO
-RUTA_COMPLETA = os.path.join(NOMBRE_CARPETA, NOMBRE_FICHERO)
+# Construimos la ruta completa de forma compatible
+RUTA_COMPLETA = os.path.join(os.getcwd(), NOMBRE_FICHERO)
 
 # ==========================================
 # 2. FUNCIONES DE GESTIÓN DE ARCHIVOS
@@ -15,11 +14,7 @@ RUTA_COMPLETA = os.path.join(NOMBRE_CARPETA, NOMBRE_FICHERO)
 def verificar_entorno():
     mensaje_estado = ""
 
-    # 1. Verificamos/Creamos la carpeta
-    if not os.path.exists(NOMBRE_CARPETA):
-        os.makedirs(NOMBRE_CARPETA)
-    
-    # 2. Verificamos/Creamos el fichero
+    # 1. Verificamos/Creamos el fichero
     if os.path.exists(RUTA_COMPLETA):
         mensaje_estado = f"Iniciado el programa. El fichero {NOMBRE_FICHERO} se abrió correctamente."
     else:
