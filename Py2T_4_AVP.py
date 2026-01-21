@@ -13,11 +13,6 @@ RUTA_COMPLETA = os.path.join(NOMBRE_CARPETA, NOMBRE_FICHERO)
 # ==========================================
 
 def verificar_entorno():
-    """
-    Verifica que exista la carpeta y el fichero necesarios.
-    Si no existen, los crea e inicializa.
-    Devuelve un mensaje de estado para mostrar al inicio.
-    """
     mensaje_estado = ""
 
     # 1. Verificamos/Creamos la carpeta
@@ -37,10 +32,6 @@ def verificar_entorno():
     return mensaje_estado
 
 def leer_valor_fichero():
-    """
-    Abre el fichero en modo lectura, recupera el número y lo devuelve como entero.
-    Gestiona errores si el fichero está vacío o corrupto.
-    """
     try:
         f = open(RUTA_COMPLETA, 'r', encoding='utf-8')
         contenido = f.readline().strip()
@@ -54,9 +45,6 @@ def leer_valor_fichero():
         return 0
 
 def escribir_valor_fichero(nuevo_valor):
-    """
-    Sobrescribe el fichero con el nuevo valor calculado.
-    """
     f = open(RUTA_COMPLETA, 'w', encoding='utf-8')
     f.write(str(nuevo_valor))
     f.close()
@@ -65,47 +53,31 @@ def escribir_valor_fichero(nuevo_valor):
 # 3. FUNCIONES LÓGICAS (OPERACIONES)
 # ==========================================
 
-def mostrar_estado_actual(valor_leido):
-    """Muestra el valor encontrado antes de operar."""
-    print(f"Valor encontrado: {valor_leido}")
-
-def mostrar_nuevo_estado(valor_nuevo):
-    """Muestra el valor resultante después de operar."""
-    print(f"Valor actual: {valor_nuevo}")
 
 def procesar_incremento():
-    """
-    Orquesta la operación de sumar 1: Lee -> Muestra -> Calcula -> Muestra -> Guarda
-    """
     # 1. Leer
     valor = leer_valor_fichero()
     # 2. Mostrar previo
-    mostrar_estado_actual(valor)
+    print(f"Valor encontrado: {valor}")
     # 3. Calcular
     valor += 1
     # 4. Mostrar nuevo
-    mostrar_nuevo_estado(valor)
+    print(f"Valor actual: {valor}")
     # 5. Guardar
     escribir_valor_fichero(valor)
 
 def procesar_decremento():
-    """
-    Orquesta la operación de restar 1: Lee -> Muestra -> Calcula -> Muestra -> Guarda
-    """
     # 1. Leer
     valor = leer_valor_fichero()
     # 2. Mostrar previo
-    mostrar_estado_actual(valor)
+    print(f"Valor encontrado: {valor}")
     # 3. Calcular
     valor -= 1
     # 4. Mostrar nuevo
-    mostrar_nuevo_estado(valor)
+    print(f"Valor actual: {valor}")
     # 5. Guardar
     escribir_valor_fichero(valor)
 
-def opcion_no_reconocida():
-    """Informa al usuario si teclea una letra incorrecta."""
-    print("Opción no válida. Por favor use I, D o F.")
 
 # ==========================================
 # 4. PROGRAMA PRINCIPAL
@@ -140,7 +112,7 @@ def main():
             acciones[opcion]()
             print(".....\n") # Separador visual entre operaciones
         else:
-            opcion_no_reconocida()
+            print("Opción no válida. Por favor use I, D o F.")
             print()
 
 # Punto de entrada
