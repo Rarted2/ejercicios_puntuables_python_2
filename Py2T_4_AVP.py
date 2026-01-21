@@ -1,115 +1,71 @@
 import os
 
-# ==========================================
-# 1. CONSTANTES Y CONFIGURACIÓN
-# ==========================================
+# Configuración de rutas
 NOMBRE_FICHERO = "numero.txt"
-# Construimos la ruta completa de forma compatible
-RUTA_COMPLETA = os.path.join(os.getcwd(), NOMBRE_FICHERO)
-
-# ==========================================
-# 2. FUNCIONES DE GESTIÓN DE ARCHIVOS
-# ==========================================
+RUTA_CARPETA = "files"
+os.makedirs(RUTA_CARPETA, exist_ok=True)
+RUTA_COMPLETA = os.path.join(RUTA_CARPETA, NOMBRE_FICHERO)
 
 def verificar_entorno():
     mensaje_estado = ""
-
-    # 1. Verificamos/Creamos el fichero
     if os.path.exists(RUTA_COMPLETA):
         mensaje_estado = f"Iniciado el programa. El fichero {NOMBRE_FICHERO} se abrió correctamente."
     else:
-        # Si no existe, lo creamos con el valor inicial '0'
-        f = open(RUTA_COMPLETA, 'w', encoding='utf-8')
+        # Creamos el fichero con valor inicial 0 si no existe
+        f = open(RUTA_COMPLETA, 'w')
         f.write("0")
         f.close()
         mensaje_estado = f"Iniciado el programa. El fichero {NOMBRE_FICHERO} se abrió correctamente. (Hubo que crearlo.)"
-    
     return mensaje_estado
 
 def leer_valor_fichero():
     try:
-        f = open(RUTA_COMPLETA, 'r', encoding='utf-8')
+        f = open(RUTA_COMPLETA, 'r')
         contenido = f.readline().strip()
         f.close()
-        
-        if contenido == "":
-            return 0 # Si está vacío, asumimos 0
-        return int(contenido)
+        return int(contenido) if contenido != "" else 0
     except ValueError:
-        print("Error: El contenido del fichero no es un número válido. Se reinicia a 0.")
+        print("Error: Contenido no numérico. Reiniciando a 0.")
         return 0
 
 def escribir_valor_fichero(nuevo_valor):
-    f = open(RUTA_COMPLETA, 'w', encoding='utf-8')
+    f = open(RUTA_COMPLETA, 'w')
     f.write(str(nuevo_valor))
     f.close()
 
-# ==========================================
-# 3. FUNCIONES LÓGICAS (OPERACIONES)
-# ==========================================
-
-
 def procesar_incremento():
-    # 1. Leer
     valor = leer_valor_fichero()
-    # 2. Mostrar previo
     print(f"Valor encontrado: {valor}")
-    # 3. Calcular
     valor += 1
-    # 4. Mostrar nuevo
     print(f"Valor actual: {valor}")
-    # 5. Guardar
     escribir_valor_fichero(valor)
 
 def procesar_decremento():
-    # 1. Leer
     valor = leer_valor_fichero()
-    # 2. Mostrar previo
     print(f"Valor encontrado: {valor}")
-    # 3. Calcular
     valor -= 1
-    # 4. Mostrar nuevo
     print(f"Valor actual: {valor}")
-    # 5. Guardar
     escribir_valor_fichero(valor)
-
-
-# ==========================================
-# 4. PROGRAMA PRINCIPAL
-# ==========================================
 
 def main():
     print("PROGRAMA CONTADOR/DESCONTADOR")
-    
-    # Paso 1: Inicialización y comprobación
-    mensaje_inicio = verificar_entorno()
-    print(mensaje_inicio)
-    print() # Línea en blanco estética
+    print(verificar_entorno())
+    print() 
     
     continuar = True
-    
-    # Diccionario para simular switch-case (como aprendimos antes)
-    # Mapeamos letras (mayúsculas) a funciones
-    acciones = {
-        'I': procesar_incremento,
-        'D': procesar_decremento
-    }
-
     while continuar:
-        # Solicitamos opción y convertimos a mayúsculas para ser tolerantes a minúsculas
         opcion = input("¿Quiere incrementar, decrementar o finalizar (I, D o F)? ").upper()
-        
         if opcion == 'F':
             continuar = False
             print("\nPrograma terminado.")
-        elif opcion in acciones:
-            # Ejecutamos la función correspondiente del diccionario
-            acciones[opcion]()
-            print(".....\n") # Separador visual entre operaciones
+        elif opcion == 'I':
+            procesar_incremento()
+            print(".....")
+        elif opcion == 'D':
+            procesar_decremento()
+            print(".....")
         else:
-            print("Opción no válida. Por favor use I, D o F.")
-            print()
+            print("Opción no válida.\n")
 
-# Punto de entrada
 if __name__ == "__main__":
     main()
