@@ -1,103 +1,36 @@
-import csv
-import json
-import os
+import csv, json, os
 
-# Rutas de archivos
-FICH_CSV = os.path.join("files", "ventasprod.csv")
-FICH_JSON = os.path.join("files", "ventasestad.json")
+os.makedirs("files", exist_ok=True)
+F_CSV, F_JSON = os.path.join("files", "ventasprod.csv"), os.path.join("files", "ventasestad.json")
 
-def generar_csv_prueba():
-    os.makedirs("files", exist_ok=True)
-    if not os.path.exists(FICH_CSV):
-        datos = [
-            ["Producto", "Cantidad", "PrecioUnitario"],
-            ["Ratón", "700", "20.00"],
-            ["Teclado", "300", "45.50"],
-            ["Monitor", "150", "120.00"],
-            ["Cable HDMI", "500", "5.50"],
-            ["Impresora", "50", "200.00"],
-            ["USB 32GB", "400", "10.00"],
-            ["Webcam", "150", "35.00"]
-        ]
-        try:
-            f = open(FICH_CSV, "w", newline="")
-            writer = csv.writer(f)
-            writer.writerows(datos)
-            f.close()
-            print(f"AVISO: Se ha creado un fichero '{FICH_CSV}' de prueba.\n")
-        except OSError as e:
-            print(f"Error creando fichero de prueba: {e}")
+# Generar archivo CSV de prueba si no existe
+if not os.path.exists(F_CSV):
+    with open(F_CSV, "w", newline="") as f:
+        csv.writer(f).writerows([["Producto", "Cantidad", "PrecioUnitario"], ["Ratón", "700", "20.00"], ["Teclado", "300", "45.50"], ["Monitor", "150", "120.00"], ["Cable HDMI", "500", "5.50"], ["Impresora", "50", "200.00"], ["USB 32GB", "400", "10.00"], ["Webcam", "150", "35.00"]])
+    print(f"AVISO: Se ha creado el fichero de prueba '{F_CSV}'.\n")
 
-def carga_datos_csv(nombre_fichero):
-    lista_productos = []
-    try:
-        f = open(nombre_fichero, mode="r", newline="")
-        reader = csv.DictReader(f)
-        for fila in reader:
-            try:
-                producto = {
-                    "nombre": fila["Producto"],
-                    "cantidad": int(fila["Cantidad"]),
-                    "precio": float(fila["PrecioUnitario"])
-                }
-                lista_productos.append(producto)
-            except ValueError:
-                print(f"Línea ignorada: {fila}")
-        f.close()
-        return lista_productos
-    except Exception as e:
-        print(f"Error leyendo CSV: {e}")
-        return []
-
-def procesa_datos_ventas(lista_ventas):
-    if not lista_ventas: return None
-
-    total_euros = 0.0
-    total_unidades = 0
-    estrella = None
-    max_ingreso = -1.0
-
-    for item in lista_ventas:
-        ingreso = item["cantidad"] * item["precio"]
-        total_euros += ingreso
-        total_unidades += item["cantidad"]
-        
-        if ingreso > max_ingreso:
-            max_ingreso = ingreso
-            estrella = {
-                "nombre": item["nombre"],
-                "cantidad": item["cantidad"],
-                "ingreso": f"{ingreso:.2f}€"
-            }
-
-    return {
-        "producto_estrella": estrella,
-        "total_vendido": f"{total_euros:.2f}€",
-        "total_unidades_vendidas": total_unidades,
-        "numero_de_productos": len(lista_ventas)
-    }
-
-def guardar_estadisticas_json(datos, nombre_fichero):
-    try:
-        f = open(nombre_fichero, "w")
-        json.dump(datos, f, indent=4, ensure_ascii=False)
-        f.close()
-        print(f"Guardando en {nombre_fichero}...")
-    except OSError as e:
-        print(f"Error guardando JSON: {e}")
-
-def main():
-    generar_csv_prueba()
-    datos_ventas = carga_datos_csv(FICH_CSV)
+# Proceso principal: Leer CSV -> Procesar -> Guardar JSON
+try:
+    with open(F_CSV, mode="r", newline="") as f:
+        # Convertimos filas a diccionario con tipos correctos, ignorando errores
+        ventas = []
+        for r in csv.DictReader(f):
+            try: ventas.append({"nombre": r["Producto"], "cant": int(r["Cantidad"]), "precio": float(r["PrecioUnitario"]), "ingreso": int(r["Cantidad"]) * float(r["PrecioUnitario"])})
+            except ValueError: pass # Ignorar filas con datos corruptos
     
-    if not datos_ventas:
-        print("No hay datos para procesar.")
-        return
+    if ventas:
+        # Calcular estadísticas usando funciones 'max' y 'sum' para eficiencia
+        estrella = max(ventas, key=lambda x: x["ingreso"])
+        stats = {
+            "producto_estrella": {"nombre": estrella["nombre"], "cantidad": estrella["cant"], "ingreso": f"{estrella['ingreso']:.2f}€"},
+            "total_vendido": f"{sum(x['ingreso'] for x in ventas):.2f}€",
+            "total_unidades": sum(x["cant"] for x in ventas),
+            "cant_productos": len(ventas)
+        }
+        
+        print(f"Estadísticas:\n{json.dumps(stats, indent=4, ensure_ascii=False)}")
+        try: json.dump(stats, open(F_JSON, "w"), indent=4, ensure_ascii=False); print(f"Guardado en {F_JSON}")
+        except OSError: print("Error guardando JSON.")
+    else: print("No se encontraron datos válidos en el CSV.")
 
-    stats = procesa_datos_ventas(datos_ventas)
-    print("Estadísticas de Ventas:")
-    print(json.dumps(stats, indent=4, ensure_ascii=False))
-    guardar_estadisticas_json(stats, FICH_JSON)
-
-if __name__ == "__main__":
-    main()
+except Exception as e: print(f"Error procesando datos: {e}")

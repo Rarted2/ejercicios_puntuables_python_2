@@ -1,142 +1,47 @@
-import os
-import json
+import os, json
 
-# Rutas de almacenamiento
-FICH_TITULOS = os.path.join("files", "mensajes.txt")
-FICH_OPCIONES = os.path.join("files", "mensajes.json")
-FICH_DATOS = os.path.join("files", "abonados.json")
+# Rutas de ficheros
+os.makedirs("files", exist_ok=True)
+R_TIT, R_OPC, R_DAT = os.path.join("files", "mensajes.txt"), os.path.join("files", "mensajes.json"), os.path.join("files", "abonados.json")
 
-def configurar_sistema():
-    os.makedirs("files", exist_ok=True)
-    if not os.path.exists(FICH_TITULOS) or not os.path.exists(FICH_OPCIONES):
-        print("AVISO: Ficheros de configuración no encontrados. Iniciando configuración...\n")
-        crear_ficheros_configuracion()
+# Configurar ficheros si no existen
+if not os.path.exists(R_TIT) or not os.path.exists(R_OPC):
+    print("AVISO: Configuración no encontrada. Iniciando...\n--- Configuración ---")
+    open(R_TIT, "w").write(f"{input('Título Principal: ')}\n{input('Subtítulo: ')}\n")
+    # Crear diccionario de opciones pidiendo input o usando defecto
+    texto = ["Alta", "Modificación", "Consulta abonado", "Consulta total", "Eliminar fichero", "Salir"]
+    json.dump({str(i): (input(f"Texto opción {i} [{t}]: ").strip() or t) for i, t in enumerate(texto, 1)}, open(R_OPC, "w"), indent=4)
 
-def crear_ficheros_configuracion():
-    print("--- Configuración de Títulos ---")
-    titulo_principal = input("Introduce el Título Principal: ")
-    subtitulo = input("Introduce el Subtítulo: ")
+# Bucle principal
+while True:
+    # Mostrar título y menú cargado desde ficheros
+    print(f"\n{open(R_TIT).read().strip()}\n" + "="*20)
+    opciones = json.load(open(R_OPC))
+    for k, v in opciones.items(): print(f"{k}) {v}")
+
+    op = input("\nOpción: ")
+    datos = json.load(open(R_DAT)) if os.path.exists(R_DAT) else {} # Cargar datos
+
+    if op == "1": # Alta
+        if (nom := input("Nombre: ").title()) in datos: print("¡Error! Ya existe.")
+        else:
+            try: datos[nom] = float(input("Factura (€): ")); json.dump(datos, open(R_DAT, "w"), indent=4); print(f"Abonado '{nom}' añadido.")
+            except ValueError: print("Error: Valor numérico requerido.")
+
+    elif op == "2": # Modificar
+        if (nom := input("Nombre: ").title()) in datos:
+            try: datos[nom] = float(input(f"Factura actual ({datos[nom]}€). Nueva: ")); json.dump(datos, open(R_DAT, "w"), indent=4); print("Actualizado.")
+            except ValueError: print("Error numérico.")
+        else: print("No encontrado.")
+
+    elif op == "3": # Consultar uno
+        print(f"Factura: {datos[input('Nombre: ').title()]}€" if (nom := input("Nombre: ").title()) in datos else "No encontrado.") 
+
+    elif op == "4": # Consultar total
+        print(f"Facturación Total: {sum(datos.values()):.2f}€ ({len(datos)} abonados)" if datos else "Sin datos.")
+
+    elif op == "5": # Eliminar fichero
+        if os.path.exists(R_DAT) and input("¿Borrar todo? (s/n): ").lower() == 's': os.remove(R_DAT); print("Eliminado.")
     
-    f = open(FICH_TITULOS, "w")
-    f.write(titulo_principal + "\n")
-    f.write(subtitulo + "\n")
-    f.close()
-
-    print("\n--- Configuración de Opciones ---")
-    opciones = {}
-    textos_default = [
-        "Alta de nuevos abonados",
-        "Modificación del valor de la factura de un abonado",
-        "Consulta del dato de facturación de un abonado",
-        "Consulta del dato de facturación total de la compañía",
-        "Eliminar el fichero de datos",
-        "Salir"
-    ]
-    
-    for i, texto_defecto in enumerate(textos_default, 1):
-        entrada = input(f"Introduce texto para opción {i} [{texto_defecto}]: ")
-        opciones[str(i)] = entrada if entrada.strip() else texto_defecto
-    
-    f = open(FICH_OPCIONES, "w")
-    json.dump(opciones, f, indent=4)
-    f.close()
-
-def mostrar_menu():
-    print()
-    if os.path.exists(FICH_TITULOS):
-        f = open(FICH_TITULOS, "r")
-        print(f.readline().strip())
-        print(f.readline().strip())
-        f.close()
-        print("=" * 20)
-    
-    if os.path.exists(FICH_OPCIONES):
-        f = open(FICH_OPCIONES, "r")
-        opciones = json.load(f)
-        f.close()
-        for k, v in opciones.items():
-            print(f"{k}) {v}")
-
-def cargar_datos():
-    if not os.path.exists(FICH_DATOS):
-        return {}
-    try:
-        f = open(FICH_DATOS, "r")
-        datos = json.load(f)
-        f.close()
-        return datos
-    except json.JSONDecodeError:
-        return {}
-
-def guardar_datos(datos):
-    f = open(FICH_DATOS, "w")
-    json.dump(datos, f, indent=4)
-    f.close()
-
-def alta_abonado():
-    datos = cargar_datos()
-    nombre = input("\nNombre del nuevo abonado: ").strip().title()
-    if nombre in datos:
-        print("¡Error! Ese abonado ya existe.")
-    else:
-        try:
-            factura = float(input("Valor de la factura (€): "))
-            datos[nombre] = factura
-            guardar_datos(datos)
-            print(f"Abonado '{nombre}' dado de alta.")
-        except ValueError:
-            print("Error: Valor numérico requerido.")
-
-def modificar_factura():
-    datos = cargar_datos()
-    nombre = input("\nNombre del abonado a modificar: ").strip().title()
-    if nombre not in datos:
-        print("Error: No encontrado.")
-    else:
-        try:
-            nueva_factura = float(input(f"Factura actual ({datos[nombre]}€). Nuevo valor: "))
-            datos[nombre] = nueva_factura
-            guardar_datos(datos)
-            print("Factura actualizada.")
-        except ValueError:
-            print("Error: Valor incorrecto.")
-
-def consultar_abonado():
-    datos = cargar_datos()
-    nombre = input("\nNombre del abonado a consultar: ").strip().title()
-    if nombre in datos:
-        print(f"La factura de '{nombre}' asciende a: {datos[nombre]}€")
-    else:
-        print("No encontrado.")
-
-def consultar_total():
-    datos = cargar_datos()
-    if not datos:
-        print("\nNo hay datos de facturación.")
-    else:
-        total = sum(datos.values())
-        print(f"\nFacturación Total: {total:.2f}€ ({len(datos)} abonados)")
-
-def eliminar_fichero_datos():
-    if os.path.exists(FICH_DATOS):
-        if input("\n¿Seguro que quieres borrar todos los datos? (s/n): ").lower() == 's':
-            os.remove(FICH_DATOS)
-            print("Fichero eliminado.")
-    else:
-        print("\nNo existe fichero de datos.")
-
-def main():
-    configurar_sistema()
-    while True:
-        mostrar_menu()
-        opcion = input("\nOpción: ")
-        if opcion == "1": alta_abonado()
-        elif opcion == "2": modificar_factura()
-        elif opcion == "3": consultar_abonado()
-        elif opcion == "4": consultar_total()
-        elif opcion == "5": eliminar_fichero_datos()
-        elif opcion == "6": break
-        else: print("Opción no válida.")
-
-if __name__ == "__main__":
-    main()
+    elif op == "6": break # Salir
+    else: print("Opción no válida.")

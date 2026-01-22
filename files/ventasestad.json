@@ -1,0 +1,10 @@
+{
+    "producto_estrella": {
+        "nombre": "Monitor",
+        "cantidad": 150,
+        "ingreso": "18000.00€"
+    },
+    "total_vendido": "67650.00€",
+    "total_unidades_vendidas": 2250,
+    "numero_de_productos": 7
+}
