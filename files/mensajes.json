@@ -1,8 +1,8 @@
 {
-    "1": "Alta",
-    "2": "Mod",
-    "3": "Consulta",
-    "4": "Consulta+",
-    "5": "Eliminar datos",
+    "1": "Alta de nuevos abonados",
+    "2": "Modificaci\u00f3n de la factura",
+    "3": "Consulta de facturaci\u00f3n",
+    "4": "Consulta de facturaci\u00f3n total",
+    "5": "Eliminar",
     "6": "Salir"
 }

@@ -1,117 +1,185 @@
 import os
 import json
 
-# ==========================================
-# CONFIGURACIÓN E INICIALIZACIÓN
-# ==========================================
-RUTA_DIR = "files"
-RUTA_FICHERO = os.path.join(RUTA_DIR, "inventario.json")
+# === RUTAS DE LOS ARCHIVOS ===
+# Definimos donde guardamos las cosas
+carpeta = "files"
+# Creamos la carpeta al principio si no existe
+if not os.path.exists(carpeta):
+    os.makedirs(carpeta)
 
-# Crear carpeta si no existe
-os.makedirs(RUTA_DIR, exist_ok=True)
+ruta_txt = os.path.join(carpeta, "mensajes.txt")
+ruta_opciones = os.path.join(carpeta, "mensajes.json")
+ruta_datos = os.path.join(carpeta, "abonados.json")
 
-# Intentar cargar inventario existente
-try:
-    with open(RUTA_FICHERO, "r") as f:
-        inventario = json.load(f)
-except (FileNotFoundError, json.JSONDecodeError):
-    inventario = {}  # Inventario vacío si falla la carga
-
-# ==========================================
-# BUCLE PRINCIPAL
-# ==========================================
-while True:
-    print("\n" + "="*30)
-    print("      GESTIÓN INVENTARIO")
-    print("="*30)
-    print("1. Añadir / Actualizar Producto")
-    print("2. Modificar Precio")
-    print("3. Eliminar Producto")
-    print("4. Valor Total del Inventario")
-    print("5. Listar Stock")
-    print("6. Guardar y Salir")
+# ========================================================
+# PARTE 1: CREAR ARCHIVOS SI NO EXISTEN (CONFIGURACIÓN)
+# ========================================================
+# Comprobamos si falta alguno de los archivos obligatorios
+if not os.path.exists(ruta_txt) or not os.path.exists(ruta_opciones):
+    print("Faltan archivos de configuración. Vamos a crearlos.")
     
-    opcion = input("\n> Elige una opción: ")
+    # 1. PREGUNTAR TEXTOS (TITULOS)
+    titulo = input("Dime el TITULO PRINCIPAL: ")
+    subtitulo = input("Dime el SUBTITULO DEL MENU: ")
+    texto_opcion = input("Dime el texto para pedir OPCION: ")
 
-    # --------------------------------------------------
-    # 1. Añadir o Actualizar producto
-    # --------------------------------------------------
-    if opcion == "1":
-        print("\n--- NUEVO PRODUCTO ---")
-        nombre = input("Nombre del producto: ")
+    # 2. GUARDAR EN TXT
+    with open(ruta_txt, "w", encoding="utf-8") as fichero:
+        fichero.write(f"{titulo}\n")
+        fichero.write(f"{subtitulo}\n")
+        fichero.write(texto_opcion)
+
+    # 3. PREGUNTAR OPCIONES DEL MENU
+    print("Ahora vamos a configurar las opciones del menú (1 al 6):")
+    
+    # Creamos un diccionario vacio
+    mi_menu = {}
+
+    mi_menu["1"] = input("Texto para Opción 1 [Alta]: ")
+    mi_menu["2"] = input("Texto para Opción 2 [Modificar]: ")
+    mi_menu["3"] = input("Texto para Opción 3 [Consulta]: ")
+    mi_menu["4"] = input("Texto para Opción 4 [Total]: ")
+    mi_menu["5"] = input("Texto para Opción 5 [Eliminar]: ")
+    mi_menu["6"] = input("Texto para Opción 6 [Salir]: ")
+
+    # 4. GUARDAR EN JSON
+    with open(ruta_opciones, "w", encoding="utf-8") as fichero_json:
+        json.dump(mi_menu, fichero_json, indent=4)
+    
+    print("Archivos creados correctamente.\n")
+
+# ========================================================
+# PARTE 2: CARGAR LOS DATOS PARA EMPEZAR
+# ========================================================
+
+# LEEMOS EL TXT
+with open(ruta_txt, "r", encoding="utf-8") as fichero:
+    # .read().splitlines() lee todo y quita los saltos de linea
+    lineas = fichero.read().splitlines()
+
+titulo = lineas[0]
+subtitulo = lineas[1]
+# La tercera linea puede no existir si el archivo es viejo, pero en tu caso existirá.
+# Para hacerlo basico asumimos que siempre esta bien creado.
+texto_opcion = lineas[2]
+
+# LEEMOS EL MENU (JSON)
+with open(ruta_opciones, "r", encoding="utf-8") as fichero_json:
+    menu_opciones = json.load(fichero_json)
+
+# LEEMOS LOS ABONADOS (JSON)
+# Si el archivo NO existe, empezamos con diccionario vacio
+if os.path.exists(ruta_datos):
+    with open(ruta_datos, "r", encoding="utf-8") as f_datos:
+        abonados = json.load(f_datos)
+else:
+    abonados = {}
+
+
+# ========================================================
+# PARTE 3: BUCLE PRINCIPAL DEL PROGRAMA
+# ========================================================
+seguir = True
+
+while seguir:
+    # Mostramos titulos
+    print("\n-------------------------")
+    print(titulo)
+    print("-------------------------")
+    print(subtitulo)
+    print("=========================")
+
+    # Mostramos las opciones (1 al 6)
+    print(f"1) {menu_opciones['1']}")
+    print(f"2) {menu_opciones['2']}")
+    print(f"3) {menu_opciones['3']}")
+    print(f"4) {menu_opciones['4']}")
+    print(f"5) {menu_opciones['5']}")
+    print(f"6) {menu_opciones['6']}")
+    print("=========================")
+
+    # Pedimos la opción
+    opcion_elegida = input(texto_opcion)
+
+    # -----------------------------------------------
+    # OPCIÓN 1: ALTA
+    if opcion_elegida == "1":
+        print("--- NUEVO ABONADO ---")
+        nombre = input("Nombre: ").title() # .title() pone mayuscula inicial
         
-        try:
-            precio = float(input("Precio (€): "))
-            cantidad = int(input("Cantidad: "))
+        # Verificamos si ya existe
+        if nombre in abonados:
+            print("Ese nombre YA EXISTE.")
+        else:
+            dinero = float(input("Factura (€): "))
+            abonados[nombre] = dinero
             
-            inventario[nombre] = {
-                "precio": precio,
-                "cantidad": cantidad
-            }
-            print(f"Producto '{nombre}' guardado correctamente.")
-        except ValueError:
-            print("Error: Debes introducir números válidos.")
+            # Guardamos cada vez que cambiamos algo
+            with open(ruta_datos, "w", encoding="utf-8") as f:
+                json.dump(abonados, f)
+            print("Guardado.")
 
-    # --------------------------------------------------
-    # 2. Modificar precio
-    # --------------------------------------------------
-    elif opcion == "2":
-        print("\n--- MODIFICAR PRECIO ---")
-        nombre = input("Nombre del producto: ")
+    # -----------------------------------------------
+    # OPCIÓN 2: MODIFICAR
+    elif opcion_elegida == "2":
+        print("--- MODIFICAR ---")
+        nombre = input("Nombre a buscar: ").title()
+
+        if nombre in abonados:
+            print(f"Factura actual: {abonados[nombre]}")
+            nueva_factura = float(input("Nueva factura: "))
+            abonados[nombre] = nueva_factura
+            
+            # Guardar
+            with open(ruta_datos, "w", encoding="utf-8") as f:
+                json.dump(abonados, f)
+            print("Modificado correctamente.")
+        else:
+            print("No encuentro a ese abonado.")
+
+    # -----------------------------------------------
+    # OPCIÓN 3: CONSULTAR UNO
+    elif opcion_elegida == "3":
+        print("--- CONSULTA ---")
+        nombre = input("Nombre a buscar: ").title()
+
+        if nombre in abonados:
+            # Mostramos el nombre y su valor
+            print(f"Abonado: {nombre}")
+            print(f"Factura: {abonados[nombre]} euros")
+        else:
+            print("No existe.")
+
+    # -----------------------------------------------
+    # OPCIÓN 4: TOTAL
+    elif opcion_elegida == "4":
+        print("--- TOTAL COMPAÑÍA ---")
+        # .values() devuelve solo los numeros (las facturas)
+        lista_facturas = abonados.values()
+        suma_total = sum(lista_facturas)
         
-        if nombre in inventario:
-            try:
-                nuevo_precio = float(input(f"Nuevo precio para '{nombre}': "))
-                inventario[nombre]["precio"] = nuevo_precio
-                print(f"Precio actualizado a {nuevo_precio:.2f}€.")
-            except ValueError:
-                print("Error: El precio debe ser un número.")
-        else:
-            print("Error: Producto no encontrado.")
+        print(f"Dinero total: {suma_total} euros")
+        print(f"Clientes: {len(abonados)}")
 
-    # --------------------------------------------------
-    # 3. Eliminar producto
-    # --------------------------------------------------
-    elif opcion == "3":
-        print("\n--- ELIMINAR PRODUCTO ---")
-        nombre = input("Nombre del producto: ")
-        
-        if nombre in inventario:
-            del inventario[nombre]
-            print(f"Producto '{nombre}' eliminado del inventario.")
-        else:
-            print("Error: Producto no encontrado.")
+    # -----------------------------------------------
+    # OPCIÓN 5: BORRAR FICHERO
+    elif opcion_elegida == "5":
+        seguro = input("¿Borrar fichero de datos? (s/n): ")
+        if seguro == "s":
+            if os.path.exists(ruta_datos):
+                os.remove(ruta_datos)
+                abonados = {} # Vaciamos la memoria tambien
+                print("Archivo borrado.")
+            else:
+                print("No existia archivo para borrar.")
 
-    # --------------------------------------------------
-    # 4. Calcular valor total
-    # --------------------------------------------------
-    elif opcion == "4":
-        total = sum(item["precio"] * item["cantidad"] for item in inventario.values())
-        print(f"\nValor total del inventario: {total:.2f}€")
+    # -----------------------------------------------
+    # OPCIÓN 6: SALIR
+    elif opcion_elegida == "6":
+        print("Adios.")
+        seguir = False # Esto hace que el while se termine
 
-    # --------------------------------------------------
-    # 5. Listar stock
-    # --------------------------------------------------
-    elif opcion == "5":
-        print("\n--- STOCK ACTUAL ---")
-        if not inventario:
-            print("(El inventario está vacío)")
-        else:
-            for nombre, datos in inventario.items():
-                print(f"- {nombre}: {datos['cantidad']} u.  |  {datos['precio']:.2f}€")
-
-    # --------------------------------------------------
-    # 6. Guardar y Salir
-    # --------------------------------------------------
-    elif opcion == "6":
-        with open(RUTA_FICHERO, "w") as f:
-            json.dump(inventario, f, indent=4)
-        print(f"\nCambios guardados en '{RUTA_FICHERO}'.")
-        print("¡Adiós!")
-        break
-
-    # --------------------------------------------------
-    # Opción no válida
-    # --------------------------------------------------
+    # -----------------------------------------------
     else:
-        print("Opción no reconocida. Inténtalo de nuevo.")
+        print("Opción incorrecta.")
