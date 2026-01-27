@@ -49,7 +49,7 @@ if not os.path.exists(ruta_txt) or not os.path.exists(ruta_opciones):
         json.dump(mi_menu, fichero_json, indent=4)
     
     print("Archivos creados correctamente.\n")
-    time.sleep(1)
+    time.sleep(2)
 
 # ========================================================
 # PARTE 2: CARGAR LOS DATOS PARA EMPEZAR
@@ -178,11 +178,11 @@ while True:
     # OPCIÓN 6: SALIR
     elif opcion_elegida == "6":
         print("¡Adiós!")
-        time.sleep(1)
+        time.sleep(2)
         break # Esto hace que el while se termine
 
     # -----------------------------------------------
     else:
         print("Opción incorrecta.")
     
-    time.sleep(1)
+    time.sleep(2)
