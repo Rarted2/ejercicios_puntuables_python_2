@@ -1,7 +1,6 @@
 # Nombre del fichero a entregar: Py2T_6_TuNombre_TuApellido.py
 import csv
 import json
-import os  # Importamos os para manejar rutas de manera más robusta (opcional, pero recomendado)
 
 # --- Definición de Funciones ---
 
@@ -9,8 +8,8 @@ def carga_datos_csv(nombre_fichero):
     lista_ventas = []
     try:
         # Se abre el fichero en modo lectura.
-        with open(nombre_fichero, mode='r', newline='', encoding='utf-8') as fichero:
-            reader = csv.DictReader(fichero)
+        with open(nombre_fichero, mode='r', newline='', encoding='utf-8') as fichero: 
+            reader = csv.DictReader(fichero) #lee el fichero y lo convierte en un diccionario
             for row in reader:
                 try:
                     # Conversión de tipos
