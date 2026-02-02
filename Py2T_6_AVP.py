@@ -1,7 +1,6 @@
 # Nombre del fichero a entregar: Py2T_6_TuNombre_TuApellido.py
 import csv
 import json
-import os  # Importamos os para manejar rutas de manera más robusta (opcional, pero recomendado)
 
 # --- Definición de Funciones ---
 
@@ -81,12 +80,7 @@ def guardar_estadisticas_json(nombre_fichero, datos_stats):
 # --- Programa Principal ---
 
 if __name__ == "__main__":
-    # ACTUALIZACIÓN: Ruta relativa incluyendo la carpeta 'files'
-    # Esto busca 'ventasprod.csv' dentro de una carpeta llamada 'files'
-    # que debe estar en el mismo lugar donde ejecutes este script.
     nombre_csv = "files/ventasprod.csv"
-    
-    # El JSON de salida se guardará en la carpeta raíz (donde está el script)
     nombre_json = "files/ventasestad.json"
 
     print("\nPROGRAMA VENTAS")
