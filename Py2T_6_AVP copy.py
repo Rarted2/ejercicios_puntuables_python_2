@@ -86,7 +86,7 @@ def guardar_estadisticas_json(datos, nombre_fichero):
     except OSError as e:
         print(f"Error guardando JSON: {e}")
 
-def main():
+if __name__ == "__main__":
     generar_csv_prueba()
     datos_ventas = carga_datos_csv(FICH_CSV)
     
@@ -98,6 +98,3 @@ def main():
     print("Estadísticas de Ventas:")
     print(json.dumps(stats, indent=4, ensure_ascii=False))
     guardar_estadisticas_json(stats, FICH_JSON)
-
-if __name__ == "__main__":
-    main()
