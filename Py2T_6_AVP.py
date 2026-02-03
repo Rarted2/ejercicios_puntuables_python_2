@@ -1,13 +1,3 @@
-"""
-Ejercicio Puntuable Py2T-6
-Nombre del fichero: Py2T_6_ApellidoNombre.py
-
-Descripción:
-1) Carga de datos CSV (ventasprod.csv).
-2) Procesamiento de estadísticas (total vendido, unidades, producto estrella, referencias).
-3) Almacenamiento en JSON (ventasestad.json).
-"""
-
 import csv
 import json
 import os
@@ -23,10 +13,6 @@ RUTA_ENTRADA = os.path.join(CARPETA_DATOS, FICHERO_ENTRADA)
 RUTA_SALIDA = os.path.join(CARPETA_DATOS, FICHERO_SALIDA)
 
 def carga_datos_csv(ruta):
-    """
-    Función para la carga de datos del contenido de un fichero CSV 
-    a una lista de diccionarios.
-    """
     datos_validados = []
     try:
         if not os.path.exists(ruta):
@@ -52,13 +38,6 @@ def carga_datos_csv(ruta):
         return None
 
 def procesa_datos_ventas(ventas):
-    """
-    Procesamiento de los datos para obtener estadísticas:
-    a) Producto más vendido (estrella)
-    b) Suma total vendido en euros
-    c) Total unidades vendidas
-    d) Número de referencias de productos (filas únicas de producto)
-    """
     if not ventas:
         return {}
 
@@ -102,7 +81,6 @@ def procesa_datos_ventas(ventas):
     return estadisticas
 
 def guardar_json(datos, ruta):
-    """ Función auxiliar para el almacenamiento en JSON """
     try:
         # Aseguramos que exista la carpeta
         os.makedirs(os.path.dirname(ruta), exist_ok=True)
