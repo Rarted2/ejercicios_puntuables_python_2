@@ -1,6 +1,11 @@
 """
-Programa de procesamiento de ventas (Versión 2).
-Lee datos desde un CSV en 'files/' y guarda el análisis detallado en 'files/ventasestad.json'.
+Ejercicio Puntuable Py2T-6
+Nombre del fichero: Py2T_6_ApellidoNombre.py
+
+Descripción:
+1) Carga de datos CSV (ventasprod.csv).
+2) Procesamiento de estadísticas (total vendido, unidades, producto estrella, referencias).
+3) Almacenamiento en JSON (ventasestad.json).
 """
 
 import csv
@@ -9,14 +14,19 @@ import os
 import time
 
 # --- Configuración de Rutas ---
-CARPETA_DATOS = "files"
+# Nota: Si tus archivos están en la raíz junto al script, cambia "files" por "."
+CARPETA_DATOS = "files" 
 FICHERO_ENTRADA = "ventasprod.csv"
 FICHERO_SALIDA = "ventasestad.json"
 
 RUTA_ENTRADA = os.path.join(CARPETA_DATOS, FICHERO_ENTRADA)
 RUTA_SALIDA = os.path.join(CARPETA_DATOS, FICHERO_SALIDA)
 
-def cargar_ventas(ruta):
+def carga_datos_csv(ruta):
+    """
+    Función para la carga de datos del contenido de un fichero CSV 
+    a una lista de diccionarios.
+    """
     datos_validados = []
     try:
         if not os.path.exists(ruta):
@@ -25,93 +35,119 @@ def cargar_ventas(ruta):
 
         with open(ruta, mode='r', encoding='utf-8', newline='') as f:
             lector = csv.DictReader(f)
-            for num_fila, fila in enumerate(lector, 1):
+            for fila in lector:
                 try:
+                    # Convertimos los tipos de datos según sea necesario para operar después
                     fila['cantidad_vendida'] = int(fila['cantidad_vendida'])
                     fila['precio_unitario'] = float(fila['precio_unitario'])
                     fila['devueltos'] = int(fila['devueltos'])
                     datos_validados.append(fila)
-                except (ValueError, KeyError) as e:
-                    print(f"Aviso: Error en fila {num_fila} ({e}). Saltando...")
+                except (ValueError, KeyError):
+                    # Si hay un dato corrupto, lo ignoramos (según lógica estándar)
+                    continue
         return datos_validados
 
     except Exception as e:
         print(f"Error crítico al leer datos: {e}")
         return None
 
-def generar_informe(ventas):
+def procesa_datos_ventas(ventas):
+    """
+    Procesamiento de los datos para obtener estadísticas:
+    a) Producto más vendido (estrella)
+    b) Suma total vendido en euros
+    c) Total unidades vendidas
+    d) Número de referencias de productos (filas únicas de producto)
+    """
     if not ventas:
         return {}
 
-    total_ingresos = 0.0
-    total_unidades = 0
-    top_producto = {"nombre": None, "cantidad": -1}
+    total_vendido_acumulado = 0.0
+    total_unidades_acumulado = 0
+    productos_unicos = set() # Usamos un set para contar referencias únicas
+    
+    # Variables para calcular el producto estrella
+    max_cantidad = -1
+    prod_estrella = {}
 
     for v in ventas:
-        ingreso = v['cantidad_vendida'] * v['precio_unitario']
-        total_ingresos += ingreso
-        total_unidades += v['cantidad_vendida']
+        nombre_prod = v['producto']
+        cantidad = v['cantidad_vendida']
+        precio = v['precio_unitario']
+        
+        ingreso_linea = cantidad * precio
+        
+        # Acumuladores globales
+        total_vendido_acumulado += ingreso_linea
+        total_unidades_acumulado += cantidad
+        productos_unicos.add(nombre_prod)
 
-        if v['cantidad_vendida'] > top_producto["cantidad"]:
-            top_producto = {
-                "nombre": v['producto'],
-                "cantidad": v['cantidad_vendida'],
-                "ingreso_generado": f"{ingreso:.2f}€"
+        # Lógica de producto estrella (mayor cantidad vendida)
+        if cantidad > max_cantidad:
+            max_cantidad = cantidad
+            prod_estrella = {
+                "nombre": nombre_prod,
+                "cantidad": cantidad,
+                "ingreso": f"{ingreso_linea:.2f}€" # Formato exacto de la imagen
             }
 
-    return {
-        "metadata": {
-            "registros_procesados": len(ventas),
-            "fecha_proceso": time.strftime("%Y-%m-%d %H:%M:%S")
-        },
-        "metricas_globales": {
-            "ingresos_totales": f"{total_ingresos:.2f}€",
-            "unidades_totales": total_unidades
-        },
-        "producto_lider": top_producto
+    # Construcción del diccionario plano según la imagen del enunciado
+    estadisticas = {
+        "producto_estrella": prod_estrella,
+        "total_vendido": f"{total_vendido_acumulado:.2f}€",
+        "total_unidades_vendidas": total_unidades_acumulado,
+        "numero_de_productos": len(productos_unicos)
     }
 
-def exportar_json(datos, ruta):
+    return estadisticas
+
+def guardar_json(datos, ruta):
+    """ Función auxiliar para el almacenamiento en JSON """
     try:
+        # Aseguramos que exista la carpeta
         os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        
         with open(ruta, 'w', encoding='utf-8') as f:
+            # ensure_ascii=False para que se vean bien los acentos y el símbolo €
             json.dump(datos, f, indent=4, ensure_ascii=False)
         return True
     except Exception as e:
         print(f"Error al exportar JSON: {e}")
         return False
 
-
+# --- PROGRAMA PRINCIPAL ---
 if __name__ == "__main__":
-    print("=" * 60)
-    print("ANÁLISIS DE VENTAS - VERSIÓN 2.0")
-    print("=" * 60)
-    time.sleep(1)
-
-    # 1. Lectura
-    print(f"-> Cargando: {RUTA_ENTRADA}")
-    ventas = cargar_ventas(RUTA_ENTRADA)
     
-    if ventas is None:
-        print("Error al cargar los datos.")
-        exit()
-    print(f"-> Éxito: {len(ventas)} registros cargados.")
-    time.sleep(0.5)
+    # Cabecera simple como en la imagen
+    print("\n" + "PROGRAMA VENTAS".center(40, "_"))
+    print()
 
-    # 2. Análisis
-    print("-> Ejecutando algoritmos de análisis...")
-    informe = generar_informe(ventas)
-    time.sleep(0.5)
-
-    print("\nRESUMEN EJECUTIVO:")
-    print(json.dumps(informe["metricas_globales"], indent=4, ensure_ascii=False))
-        
-    # 3. Guardado
-    print(f"\n-> Exportando informe a: {RUTA_SALIDA}")
-    if exportar_json(informe, RUTA_SALIDA):
-        print("-> Exportación completada con éxito.")
-        
+    # 1. Carga
+    print(f"Iniciando carga de datos desde el fichero {FICHERO_ENTRADA}...")
+    # Simulamos un pequeño tiempo de espera
     time.sleep(1)
-    print("\n" + "=" * 60)
-    print("FIN DEL TRATAMIENTO DE DATOS")
-    print("=" * 60)
+    
+    datos = carga_datos_csv(RUTA_ENTRADA)
+    
+    if datos is None:
+        print("No se pudieron cargar los datos. Fin del programa.")
+        exit()
+
+    print(f"\nSe cargaron {len(datos)} filas de datos.")
+    print("\nProcesando los datos...")
+    time.sleep(1)
+
+    # 2. Procesamiento
+    resultados = procesa_datos_ventas(datos)
+
+    # Mostrar en pantalla con formato JSON
+    print("\nEstadísticas de Ventas:")
+    print(json.dumps(resultados, indent=4, ensure_ascii=False))
+
+    # 3. Almacenamiento
+    print(f"\nAlmacenando en fichero {FICHERO_SALIDA}...")
+    if guardar_json(resultados, RUTA_SALIDA):
+        # En la imagen no sale mensaje de "éxito", así que lo dejamos limpio
+        pass
+    
+    print("\n" + "_"*40)
