@@ -1,188 +1,129 @@
+"""
+Programa de procesamiento de ventas.
+Lee datos desde un CSV, calcula estadísticas básicas y guarda el resultado en un JSON.
+"""
+
+import csv
+import json
 import os
 import time
-import json
 
-# === RUTAS DE LOS ARCHIVOS ===
-# Definimos dónde guardamos las cosas
-carpeta = "files"
-# Creamos la carpeta al principio si no existe
-if not os.path.exists(carpeta):
-    os.makedirs(carpeta)
+# --- Constantes de Configuración ---
+RUTA_CSV = os.path.join("files", "ventasprod.csv")
+RUTA_JSON_SALIDA = "ventasestad.json"
 
-ruta_txt = os.path.join(carpeta, "mensajes.txt")
-ruta_opciones = os.path.join(carpeta, "mensajes.json")
-ruta_datos = os.path.join(carpeta, "abonados.json")
+def cargar_datos_csv(ruta_fichero):
+    """
+    Lee el fichero CSV y devuelve una lista de diccionarios con los tipos corregidos.
+    """
+    ventas = []
+    try:
+        if not os.path.exists(ruta_fichero):
+            print(f"Error: No se encontró el fichero '{ruta_fichero}'.")
+            return None
 
-# ========================================================
-# PARTE 1: CREAR ARCHIVOS SI NO EXISTEN (CONFIGURACIÓN)
-# ========================================================
-# Comprobamos si falta alguno de los archivos obligatorios
-if not os.path.exists(ruta_txt) or not os.path.exists(ruta_opciones):
-    print("Faltan archivos de configuración. Vamos a crearlos.")
+        with open(ruta_fichero, mode='r', newline='', encoding='utf-8') as fichero:
+            lector = csv.DictReader(fichero)
+            for fila in lector:
+                try:
+                    # Conversión de tipos de datos
+                    fila['cantidad_vendida'] = int(fila['cantidad_vendida'])
+                    fila['precio_unitario'] = float(fila['precio_unitario'])
+                    fila['devueltos'] = int(fila['devueltos'])
+                    ventas.append(fila)
+                except ValueError as e:
+                    print(f"(!) Ignorando fila malformada: {e}")
+                    continue
+        return ventas
+
+    except Exception as e:
+        print(f"Error inesperado al leer el CSV: {e}")
+        return None
+
+def procesar_estadisticas(lista_ventas):
+    """
+    Calcula el total vendido, unidades totales y el producto con más ventas.
+    """
+    if not lista_ventas:
+        return {}
+
+    total_euros = 0.0
+    total_unidades = 0
+    max_unidades = -1
+    producto_estrella = {}
+
+    for item in lista_ventas:
+        nombre = item['producto']
+        cantidad = item['cantidad_vendida']
+        precio = item['precio_unitario']
+        ingresos = cantidad * precio
+
+        total_euros += ingresos
+        total_unidades += cantidad
+
+        if cantidad > max_unidades:
+            max_unidades = cantidad
+            producto_estrella = {
+                "nombre": nombre,
+                "cantidad": cantidad,
+                "ingresos": f"{ingresos:.2f}€"
+            }
+
+    return {
+        "resumen": {
+            "total_ingresos": f"{total_euros:.2f}€",
+            "total_unidades_vendidas": total_unidades,
+            "total_distintos_productos": len(lista_ventas)
+        },
+        "producto_destacado": producto_estrella
+    }
+
+def guardar_json(datos, ruta_salida):
+    """Guarda el diccionario de datos en formato JSON."""
+    try:
+        with open(ruta_salida, 'w', encoding='utf-8') as f:
+            json.dump(datos, f, indent=4, ensure_ascii=False)
+        return True
+    except Exception as e:
+        print(f"Error al guardar el archivo JSON: {e}")
+        return False
+
+def main():
+    print("=" * 50)
+    print("SISTEMA DE ANÁLISIS DE VENTAS")
+    print("=" * 50)
+    time.sleep(1)
+
+    # 1. Fase de Carga
+    print(f"[*] Cargando datos desde: {RUTA_CSV}...")
+    datos = cargar_datos_csv(RUTA_CSV)
     
-    # 1. PREGUNTAR TEXTOS (TITULOS)
-    titulo = input("Dime el TÍTULO PRINCIPAL: ")
-    subtitulo = input("Dime el SUBTÍTULO DEL MENÚ: ")
-    texto_opcion = input("Dime el texto Para pedir OPCIÓN: ")
+    if datos is None:
+        print("Finalizando programa por error en la carga.")
+        return
 
-    # 2. GUARDAR EN TXT
-    with open(ruta_txt, "w", encoding="utf-8") as fichero:
-        fichero.write(f"{titulo}\n")
-        fichero.write(f"{subtitulo}\n")
-        fichero.write(texto_opcion)
+    print(f"[OK] Se han procesado {len(datos)} registros.")
+    time.sleep(0.5)
 
-    # 3. PREGUNTAR OPCIONES DEL MENU
-    print("Ahora vamos a configurar las opciones del menú (1 al 6):")
+    # 2. Fase de Procesamiento
+    print("[*] Generando estadísticas...")
+    stats = procesar_estadisticas(datos)
+    time.sleep(0.5)
+
+    print("\nRESULTADOS DEL ANÁLISIS:")
+    print("-" * 30)
+    print(json.dumps(stats, indent=4, ensure_ascii=False))
+    print("-" * 30)
+
+    # 3. Fase de Almacenamiento
+    print(f"\n[*] Guardando resultados en: {RUTA_JSON_SALIDA}...")
+    if guardar_json(stats, RUTA_JSON_SALIDA):
+        print("[OK] El archivo se ha generado correctamente.")
     
-    # Creamos un diccionario vacío
-    mi_menu = {}
+    time.sleep(1)
+    print("\n" + "=" * 50)
+    print("PROCESO FINALIZADO")
+    print("=" * 50)
 
-    mi_menu["1"] = input("Texto para Opción 1 [Alta]: ")
-    mi_menu["2"] = input("Texto para Opción 2 [Modificar]: ")
-    mi_menu["3"] = input("Texto para Opción 3 [Consulta]: ")
-    mi_menu["4"] = input("Texto para Opción 4 [Total]: ")
-    mi_menu["5"] = input("Texto para Opción 5 [Eliminar]: ")
-    mi_menu["6"] = input("Texto para Opción 6 [Salir]: ")
-
-    # 4. GUARDAR EN JSON
-    with open(ruta_opciones, "w", encoding="utf-8") as fichero_json:
-        json.dump(mi_menu, fichero_json, indent=4)
-    
-    print("Archivos creados correctamente.\n")
-    time.sleep(2)
-
-# ========================================================
-# PARTE 2: CARGAR LOS DATOS PARA EMPEZAR
-# ========================================================
-
-# LEEMOS EL TXT
-with open(ruta_txt, "r", encoding="utf-8") as fichero:
-    # .read().splitlines() lee todo y quita los saltos de línea
-    lineas = fichero.read().splitlines()
-
-titulo = lineas[0]
-subtitulo = lineas[1]
-# La tercera linea puede no existir si el archivo es viejo, pero en tu caso existirá.
-# Para hacerlo básico asumimos que siempre está bien creado.
-texto_opcion = lineas[2]
-
-# LEEMOS EL MENU (JSON)
-with open(ruta_opciones, "r", encoding="utf-8") as fichero_json:
-    menu_opciones = json.load(fichero_json)
-
-# LEEMOS LOS ABONADOS (JSON)
-# Si el archivo NO existe, empezamos con diccionario vacío
-if os.path.exists(ruta_datos):
-    with open(ruta_datos, "r", encoding="utf-8") as f_datos:
-        abonados = json.load(f_datos)
-else:
-    abonados = {}
-
-
-# ========================================================
-# PARTE 3: BUCLE PRINCIPAL DEL PROGRAMA
-# ========================================================
-while True:
-    # Mostramos titulos
-    print("\n-------------------------")
-    print(titulo)
-    print("-------------------------")
-    print(subtitulo)
-    print("=========================")
-
-    # Mostramos las opciones (1 al 6)
-    print(f"1) {menu_opciones['1']}")
-    print(f"2) {menu_opciones['2']}")
-    print(f"3) {menu_opciones['3']}")
-    print(f"4) {menu_opciones['4']}")
-    print(f"5) {menu_opciones['5']}")
-    print(f"6) {menu_opciones['6']}")
-    print("=========================")
-
-    # Pedimos la opción
-    opcion_elegida = input(texto_opcion)
-
-    # -----------------------------------------------
-    # OPCIÓN 1: ALTA
-    if opcion_elegida == "1":
-        print("--- NUEVO ABONADO ---")
-        nombre = input("Nombre: ").title() # .title() pone mayúscula inicial
-        
-        # Verificamos si ya existe
-        if nombre in abonados:
-            print("Ese nombre YA EXISTE.")
-        else:
-            dinero = float(input("Factura (€): "))
-            abonados[nombre] = dinero
-            
-            # Guardamos cada vez que cambiamos algo
-            with open(ruta_datos, "w", encoding="utf-8") as f:
-                json.dump(abonados, f)
-            print("Guardado.")
-
-    # -----------------------------------------------
-    # OPCIÓN 2: MODIFICAR
-    elif opcion_elegida == "2":
-        print("--- MODIFICAR ---")
-        nombre = input("Nombre a buscar: ").title()
-
-        if nombre in abonados:
-            print(f"Factura actual: {abonados[nombre]}")
-            nueva_factura = float(input("Nueva factura: "))
-            abonados[nombre] = nueva_factura
-            
-            # Guardar
-            with open(ruta_datos, "w", encoding="utf-8") as f:
-                json.dump(abonados, f)
-            print("Modificado correctamente.")
-        else:
-            print("No encuentro a ese abonado.")
-
-    # -----------------------------------------------
-    # OPCIÓN 3: CONSULTAR UNO
-    elif opcion_elegida == "3":
-        print("--- CONSULTA ---")
-        nombre = input("Nombre a buscar: ").title()
-
-        if nombre in abonados:
-            # Mostramos el nombre y su valor
-            print(f"Abonado: {nombre}")
-            print(f"Factura: {abonados[nombre]} euros")
-        else:
-            print("No existe.")
-
-    # -----------------------------------------------
-    # OPCIÓN 4: TOTAL
-    elif opcion_elegida == "4":
-        print("--- TOTAL COMPAÑÍA ---")
-        # .values() devuelve solo los números (las facturas)
-        lista_facturas = abonados.values()
-        suma_total = sum(lista_facturas)
-        
-        print(f"Dinero total: {suma_total} euros")
-        print(f"Clientes: {len(abonados)}")
-
-    # -----------------------------------------------
-    # OPCIÓN 5: BORRAR FICHERO
-    elif opcion_elegida == "5":
-        seguro = input("¿Borrar fichero de datos? (s/n): ")
-        if seguro == "s":
-            if os.path.exists(ruta_datos):
-                os.remove(ruta_datos)
-                abonados = {} # Vaciamos la memoria también
-                print("Archivo borrado.")
-            else:
-                print("No existía archivo para borrar.")
-
-    # -----------------------------------------------
-    # OPCIÓN 6: SALIR
-    elif opcion_elegida == "6":
-        print("¡Adiós!")
-        time.sleep(2)
-        break # Esto hace que el while se termine
-
-    # -----------------------------------------------
-    else:
-        print("Opción incorrecta.")
-    
-    time.sleep(2)
+if __name__ == "__main__":
+    main()

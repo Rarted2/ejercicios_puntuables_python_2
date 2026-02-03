@@ -1,39 +1,78 @@
+"""
+Programa contador persistedo en un archivo de texto.
+Permite incrementar o decrementar un valor almacenado en 'files/numero.txt'.
+"""
+
 import os
 
-# Asegurar que el directorio existe y definir la ruta del archivo
-os.makedirs("files", exist_ok=True)
-ruta = os.path.join("files", "numero.txt")
+# Configuración de constantes
+DIRECTORIO_FILES = "files"
+NOMBRE_ARCHIVO = "numero.txt"
+RUTA_ARCHIVO = os.path.join(DIRECTORIO_FILES, NOMBRE_ARCHIVO)
 
-# Verificar si el archivo existe; si no, crearlo con el valor inicial "0"
-creado = False
-if not os.path.exists(ruta):
-    open(ruta, 'w').write("0")
-    creado = True
-
-# Mostrar mensaje de inicio indicando si se creó el archivo
-print(f"PROGRAMA CONTADOR/DESCONTADOR\nIniciado el programa. El fichero numero.txt se abrió correctamente.{' (Hubo que crearlo.)' if creado else ''}\n")
-
-# Bucle principal: pide la opción y continúa hasta que sea 'F'
-# Se utiliza el operador 'walrus' (:=) para asignar y comparar en una línea
-while (opcion := input("¿Quiere incrementar, decrementar o finalizar (I, D o F)? ").upper()) != 'F':
-    if opcion in "ID":
-        try:
-            # Intentar leer el número del archivo; si está vacío o falla, usar 0
-            valor = int(open(ruta).read().strip() or 0)
-        except ValueError:
-            valor = 0
-            print("Error: Contenido no numérico. Reiniciando a 0.")
-
-        print(f"Valor encontrado: {valor}")
+def inicializar_archivo():
+    """Crea el directorio y el archivo inicial si no existen."""
+    if not os.path.exists(DIRECTORIO_FILES):
+        os.makedirs(DIRECTORIO_FILES)
         
-        # Incrementar o decrementar el valor según la opción elegida
-        valor += 1 if opcion == 'I' else -1
-        
-        print(f"Valor actual: {valor}\n.....")
-        
-        # Guardar el nuevo valor en el archivo
-        open(ruta, 'w').write(str(valor))
-    else:
-        print("Opción no válida.\n")
+    if not os.path.exists(RUTA_ARCHIVO):
+        with open(RUTA_ARCHIVO, 'w', encoding='utf-8') as f:
+            f.write("0")
+        return True
+    return False
 
-print("\nPrograma terminado.")
+def leer_valor():
+    """Lee el valor actual del archivo. Devuelve 0 si hay error."""
+    try:
+        with open(RUTA_ARCHIVO, 'r', encoding='utf-8') as f:
+            contenido = f.read().strip()
+            return int(contenido) if contenido else 0
+    except (FileNotFoundError, ValueError):
+        return 0
+
+def guardar_valor(valor):
+    """Guarda el nuevo valor en el archivo."""
+    with open(RUTA_ARCHIVO, 'w', encoding='utf-8') as f:
+        f.write(str(valor))
+
+def main():
+    recien_creado = inicializar_archivo()
+    
+    print("=" * 40)
+    print("GESTOR DE CONTADOR PERSISTENTE")
+    print("=" * 40)
+    print(f"Archivo: {RUTA_ARCHIVO}")
+    if recien_creado:
+        print("Aviso: El archivo no existía y ha sido inicializado en 0.")
+    print("----------------------------------------")
+
+    while True:
+        print("\nOpciones: [I] Incrementar | [D] Decrementar | [F] Finalizar")
+        opcion = input("Seleccione una opción: ").strip().upper()
+
+        if opcion == 'F':
+            break
+        
+        if opcion in ('I', 'D'):
+            valor_actual = leer_valor()
+            print(f"Valor en disco: {valor_actual}")
+            
+            if opcion == 'I':
+                nuevo_valor = valor_actual + 1
+                accion = "incrementado"
+            else:
+                nuevo_valor = valor_actual - 1
+                accion = "decrementado"
+            
+            guardar_valor(nuevo_valor)
+            print(f"Valor {accion} a: {nuevo_valor}")
+            print(".....")
+        else:
+            print("(!) Opción no válida. Por favor, use I, D o F.")
+
+    print("\n" + "=" * 40)
+    print("Programa terminado correctamente.")
+    print("=" * 40)
+
+if __name__ == "__main__":
+    main()

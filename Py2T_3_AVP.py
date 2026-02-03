@@ -1,25 +1,66 @@
+"""
+Programa que simula el lanzamiento de dados.
+Muestra una representación visual del dado y guarda los valores únicos obtenidos.
+"""
+
 import random
 
-# Definición compacta de las caras del dado para impresión (índice 0 vacío para alinear 1-6)
-dados_dibujo = [
-    "", 
-    "\n   \n * \n   \n", "\n*  \n   \n  *\n", "\n*  \n * \n  *\n", 
-    "\n* *\n   \n* *\n", "\n* *\n * \n* *\n", "\n* *\n* *\n* *\n"
-]
-lista_dados = [] # Almacena números únicos que han salido
+# Representación visual de las caras del dado
+DADOS_DIBUJO = {
+    1: "+-------+\n|       |\n|   *   |\n|       |\n+-------+",
+    2: "+-------+\n| *     |\n|       |\n|     * |\n+-------+",
+    3: "+-------+\n| *     |\n|   *   |\n|     * |\n+-------+",
+    4: "+-------+\n| *   * |\n|       |\n| *   * |\n+-------+",
+    5: "+-------+\n| *   * |\n|   *   |\n| *   * |\n+-------+",
+    6: "+-------+\n| *   * |\n| *   * |\n| *   * |\n+-------+"
+}
 
-# Bucle principal hasta que el usuario decida salir con '0'
-while True:
-    try:
-        if (n_lanzamientos := int(input("¿Cuántos dados lanzamos? (0 para salir): "))) == 0:
-            # Al salir: ordenar, formatear y mostrar los valores únicos obtenidos
-            print(f"Valores lanzados: {', '.join(map(str, sorted(lista_dados)))}\nFin del programa.")
-            break
+def lanzar_dados(cantidad, valores_unicos):
+    """Lanza la cantidad especificada de dados y actualiza el conjunto de valores únicos."""
+    for i in range(1, cantidad + 1):
+        valor = random.randint(1, 6)
+        print(f"\nLanzamiento nº {i}:")
+        print(f"Ha salido un {valor}:")
+        print(DADOS_DIBUJO[valor])
+        
+        if valor not in valores_unicos:
+            valores_unicos.add(valor)
+
+def main():
+    valores_obtenidos = set() # Usamos un set para valores únicos automáticamente
+    
+    print("=" * 40)
+    print("SIMULADOR DE LANZAMIENTO DE DADOS")
+    print("=" * 40)
+
+    while True:
+        try:
+            linea_entrada = input("\n¿Cuántos dados quieres lanzar? (0 para salir): ").strip()
             
-        for i in range(n_lanzamientos):
-            # Generar número, dibujar dado y añadir a la lista si es nuevo
-            val = random.randint(1, 6)
-            print(f"El lanzamiento {i+1} ha generado un {val}:{dados_dibujo[val]}")
-            if val not in lista_dados: lista_dados.append(val)
+            if not linea_entrada:
+                continue
+                
+            n_lanzamientos = int(linea_entrada)
+
+            if n_lanzamientos == 0:
+                print("\n" + "=" * 40)
+                if valores_obtenidos:
+                    lista_ordenada = sorted(list(valores_obtenidos))
+                    print(f"Valores únicos que han salido: {', '.join(map(str, lista_ordenada))}")
+                else:
+                    print("No se ha lanzado ningún dado.")
+                print("Fin del programa. ¡Adiós!")
+                print("=" * 40)
+                break
+                
+            if n_lanzamientos < 0:
+                print("Error: El número de lanzamientos debe ser positivo.")
+                continue
+
+            lanzar_dados(n_lanzamientos, valores_obtenidos)
             
-    except ValueError: print("Por favor, introduce un número entero válido.")
+        except ValueError:
+            print("Error: Por favor, introduce un número entero válido.")
+
+if __name__ == "__main__":
+    main()

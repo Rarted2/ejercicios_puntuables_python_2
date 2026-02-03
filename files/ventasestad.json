@@ -1,0 +1,10 @@
+{
+    "producto_estrella": {
+        "nombre": "Ratón",
+        "cantidad": 700,
+        "ingreso": "14000.00€"
+    },
+    "total_vendido": "336237.50€",
+    "total_unidades_vendidas": 2250,
+    "numero_de_productos": 7
+}
